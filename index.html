@@ -193,7 +193,7 @@ img{user-select:none;-webkit-user-drag:none}
 .sylchips.joined{gap:0} .sylchips.joined .chip-s{border-color:transparent;background:transparent;padding:6px 1px}
 .opt.syl{font-family:var(--f-word);font-weight:700;font-size:2.4rem}
 /* letter morphs */
-.morph{width:min(260px,62vw);aspect-ratio:1;max-width:100%;border-radius:24px;background:#fbf1de;object-fit:cover;cursor:pointer;box-shadow:0 3px 0 var(--line)}
+.morph{width:min(300px,70vw);aspect-ratio:1;max-width:100%;border-radius:24px;background:#fbf1de;object-fit:cover;cursor:pointer;box-shadow:0 3px 0 var(--line)}
 .mcard{display:flex;flex-direction:column;align-items:center;gap:8px}
 .mcard .aw{font-family:var(--f-word);font-size:1.9rem;font-weight:700}
 .mcard .aw b{text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:5px}
@@ -452,11 +452,7 @@ const MORPH = {ru:{'Д':['дом','d'],'Ж':['жук','zh'],'Г':['гусь','g'
 const PILOT_CONTROL = ['Б','З','Ш','П','Л'];
 const morphOf = (l,ch) => MORPH[l]&&MORPH[l][ch];
 const vkey = (l,ch) => morphOf(l,ch)&&hasClip(l,'m:'+ch)?'m:'+ch:'a:'+ch;
-const blobs = {};
-function morphSrc(f){ // load into a blob so replay works even on servers without range requests
-  if(!blobs[f]) blobs[f]=fetch(f).then(r=>r.blob()).then(b=>URL.createObjectURL(b)).catch(()=>f);
-  return blobs[f];
-}
+const morphSrc = f => Promise.resolve(f);
 const HOMO = new Set('ABCEHIKMOPTXYaceiopxyАВСЕНІКМОРТХУаеіорсху'); // letters that look the same across alphabets
 
 /* ---------- UI text ---------- */
@@ -503,7 +499,7 @@ const T = {
 };
 
 /* ---------- extra UI text: questionnaire, test, plan, rewards ---------- */
-Object.assign(T.ru,{streak:'подряд',
+Object.assign(T.ru,{streak:'подряд',mMorph:'Буквы-превращения',
   pilotT:'Пилот: буквы-превращения',pilotText:'Проверяем, запоминаются ли буквы лучше, если буква на глазах превращается в предмет своей формы (Д — дом, Ж — жук, Г — гусь, С — сыр, Т — табурет). Для сравнения пять букв показаны обычными карточками (Б, З, Ш, П, Л). Шаг 1: ребёнок смотрит все 10 букв. Шаг 2, на следующий день: герой называет букву, ребёнок её находит. Если ребёнок уже проходил эти буквы в игре, сравнение будет менее точным.',pilot1:'Шаг 1. Показать 10 букв',pilot2:'Шаг 2. Проверка',pilotShown:'Готово. Проверку лучше сделать завтра.',pilotWhen:'Буквы показаны {d}. Проверку лучше делать на следующий день.',pilotM:'Буквы-превращения узнал',pilotC:'Обычные карточки узнал',pilotWin:'Превращения сработали лучше. Если так у нескольких детей, стоит делать их для всех букв.',pilotLose:'Обычные карточки сработали лучше. Перед тем как делать превращения для всех букв, стоит проверить ещё на одном-двух детях.',pilotTie:'Разницы нет. Нужна проверка ещё на одном-двух детях.',
   qAbc:'Знает ли буквы',abcOpts:['Почти не знает','Знает часть','Знает все'],
   mL:['Знакомлюсь с буквами','Слияние','Первый звук','Собери слово'],askSlide:'Нажми на букву — она побежит к соседке',askSyl:'Послушай и найди слог',askWord:'Послушай и найди слово',askSW:'Прочитай по слогам и найди картинку',replayL:'Ещё раз',letters:'Буквы',
@@ -537,7 +533,7 @@ Object.assign(T.ru,{streak:'подряд',
   howText:'Проверка смотрит три вещи: какие слова ребёнок читает (короткие или длинные), как быстро узнаёт слово со вспышки и путает ли языки. Из этого собирается путь из 12 занятий: 10 обычных и 2 проверки. Больше времени получает язык, где ребёнку труднее, и язык, которого нет в школе. В каждом занятии 2–4 задания по 2–3 минуты. Буквы-двойники, на которых были ошибки, попадаются в словах чаще. После двух заданий подряд почти без ошибок уровень повышается сам. После проверки на шестом занятии вторая половина пути пересобирается. Занятие открывается раз в день, чтобы чтение стало привычкой. Если ребёнок пока не читает слова на каком-то языке, путь по нему начинается с букв: три новые буквы за занятие, «Слияние» (буква бежит к букве: М + А = МА, потом слова по слогам), «Первый звук» и «Собери слово». Когда все буквы пройдены, начинается чтение.',
   ok:['Верно!','Умница!','Точно!','Да!','Супер!']
 });
-Object.assign(T.ua,{streak:'поспіль',
+Object.assign(T.ua,{streak:'поспіль',mMorph:'Літери-перетворення',
   pilotT:'Пілот: літери-перетворення',pilotText:'Перевіряємо, чи краще запам\'ятовуються літери, якщо літера на очах перетворюється на предмет своєї форми (Д — дом, Ж — жук, Г — гусь, С — сыр, Т — табурет; пілот поки російською). Для порівняння пʼять літер показано звичайними картками (Б, З, Ш, П, Л). Крок 1: дитина дивиться всі 10 літер. Крок 2, наступного дня: герой називає літеру, дитина її знаходить.',pilot1:'Крок 1. Показати 10 літер',pilot2:'Крок 2. Перевірка',pilotShown:'Готово. Перевірку краще зробити завтра.',pilotWhen:'Літери показано {d}. Перевірку краще робити наступного дня.',pilotM:'Літери-перетворення впізнав',pilotC:'Звичайні картки впізнав',pilotWin:'Перетворення спрацювали краще. Якщо так у кількох дітей, варто робити їх для всіх літер.',pilotLose:'Звичайні картки спрацювали краще. Перш ніж робити перетворення для всіх літер, варто перевірити ще на одній-двох дітях.',pilotTie:'Різниці немає. Потрібна перевірка ще на одній-двох дітях.',
   qAbc:'Чи знає літери',abcOpts:['Майже не знає','Знає частину','Знає всі'],
   mL:['Знайомлюся з літерами','Злиття','Перший звук','Склади слово'],askSlide:'Натисни на літеру — вона побіжить до сусідки',askSyl:'Послухай і знайди склад',askWord:'Послухай і знайди слово',askSW:'Прочитай по складах і знайди картинку',replayL:'Ще раз',letters:'Літери',
@@ -571,7 +567,7 @@ Object.assign(T.ua,{streak:'поспіль',
   howText:'Перевірка дивиться на три речі: які слова дитина читає (короткі чи довгі), як швидко впізнає слово зі спалаху і чи плутає мови. З цього складається шлях із 12 занять: 10 звичайних і 2 перевірки. Більше часу отримує мова, де дитині важче, і мова, якої немає в школі. У кожному занятті 2–4 завдання по 2–3 хвилини. Літери-двійники, на яких були помилки, трапляються в словах частіше. Після двох завдань поспіль майже без помилок рівень підвищується сам. Після перевірки на шостому занятті друга половина шляху складається заново. Заняття відкривається раз на день, щоб читання стало звичкою. Якщо дитина поки не читає слова якоюсь мовою, шлях нею починається з літер: три нові літери за заняття, «Злиття» (літера біжить до літери: М + А = МА, потім слова по складах), «Перший звук» і «Склади слово». Коли всі літери пройдено, починається читання.',
   ok:['Правильно!','Молодець!','Точно!','Так!','Супер!']
 });
-Object.assign(T.en,{streak:'in a row',
+Object.assign(T.en,{streak:'in a row',mMorph:'Letters that transform',
   pilotT:'Pilot: letters that transform',pilotText:'We are checking whether letters stick better when the letter turns into an object of its own shape (Д is a house, Ж a beetle, Г a goose, С cheese, Т a stool; the pilot is in Russian for now). For comparison, five letters are shown as plain cards (Б, З, Ш, П, Л). Step 1: the child watches all 10 letters. Step 2, the next day: the hero names a letter and the child finds it.',pilot1:'Step 1. Show 10 letters',pilot2:'Step 2. Check',pilotShown:'Done. Better to run the check tomorrow.',pilotWhen:'Letters shown on {d}. Run the check the next day.',pilotM:'Transforming letters recognised',pilotC:'Plain cards recognised',pilotWin:'The transformations worked better. If this holds for a few children, make them for every letter.',pilotLose:'The plain cards worked better. Check with one or two more children before making transformations for every letter.',pilotTie:'No difference. Check with one or two more children.',
   qAbc:'Knows the letters',abcOpts:['Hardly any','Some','All of them'],
   mL:['Meet the letters','Blending','First sound','Build the word'],askSlide:'Tap a letter and watch them slide together',askSyl:'Listen and find the syllable',askWord:'Listen and find the word',askSW:'Read the parts and find the picture',replayL:'Again',letters:'Letters',
@@ -1389,11 +1385,13 @@ function renderHome(){
   }
   $('t-album').textContent=t('album'); $('t-parentBtn').textContent=t('parentBtn'); $('t-free').textContent=t('free');
   const icons=['<b>к</b><b>і</b><b>т</b>','<b>⚡</b>','<b>ы</b><b>?</b><b>ї</b>','<b>А</b><b>Б</b><b>В</b>','<b>A</b><b>a</b>','<b>🔊</b>','<b>🧩</b>','<b>М</b><b>А</b>'];
-  const names=t('mL').concat(t('m').map(m=>m[0])), ids=[4,7,5,6,0,1,2,3];
+  const names=[t('mMorph')].concat(t('mL'),t('m').map(m=>m[0])), ids=[8,4,7,5,6,0,1,2,3]; icons[8]='<b>Д</b>🏠';
   $('modeList').innerHTML=ids.map((id,i)=>`<button class="mode" data-mode="${id}"><span class="ico">${icons[id]}</span><h3>${names[i]}</h3></button>`).join('');
   if(P.pendingReward!=null) later(showReward,500);
 }
 $('modeList').addEventListener('click',e=>{const b=e.target.closest('[data-mode]');if(!b)return;const m=+b.dataset.mode; sfx.pop();
+  if(m===8){ const l=P.langs.find(x=>MORPH[x])||'ru'; const ctx={kind:'free',l,type:'learn'}; ctx.replay=()=>run(Object.keys(MORPH[l]).map(ch=>({t:'card',l,ch})),ctx);
+    return ctx.replay(); }
   if(m===2){ if(P.langs.length<2){toast(t('needTwo'));return} return run(whichTasks(P.langs,10),{kind:'free',replay:()=>run(whichTasks(P.langs,10),G.ctx)}); }
   if(P.langs.length===1) return startFree(m,P.langs[0]);
   go('pick'); $('pickTitle').textContent=t('pick');
