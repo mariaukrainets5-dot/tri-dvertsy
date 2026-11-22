@@ -69,6 +69,12 @@ for f in sorted(raw.glob("*.mp3")):
         if not runs:
             bad.append(f"{k}: pauses unclear"); continue
         clips[l] += [("w:" + w, x[a:b]) for w, (a, b) in zip(words, runs)]
+    elif kind == "m":  # pilot letters named with their shape objects: "Буква Ж, как жук."
+        letters = ["Д", "Ж", "Г", "С", "Т"]
+        runs = split_n(x, len(letters))
+        if not runs:
+            bad.append(f"{k}: pauses unclear"); continue
+        clips[l] += [("m:" + c, x[a:b]) for c, (a, b) in zip(letters, runs)]
     elif kind == "s":
         syl = schunks[l][int(rest)]
         runs = split_n(x, len(syl))

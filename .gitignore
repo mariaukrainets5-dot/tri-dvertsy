@@ -2,3 +2,5 @@
 art-src/*.png
 voice-src/raw/
 .DS_Store
+morph-src/*.png
+morph-src/*.mp4

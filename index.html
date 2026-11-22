@@ -192,6 +192,11 @@ img{user-select:none;-webkit-user-drag:none}
 .chip-s.on{border-color:var(--ink)}
 .sylchips.joined{gap:0} .sylchips.joined .chip-s{border-color:transparent;background:transparent;padding:6px 1px}
 .opt.syl{font-family:var(--f-word);font-weight:700;font-size:2.4rem}
+/* letter morphs */
+.morph{width:min(260px,62vw);aspect-ratio:1;max-width:100%;border-radius:24px;background:#fbf1de;object-fit:cover;cursor:pointer;box-shadow:0 3px 0 var(--line)}
+.mcard{display:flex;flex-direction:column;align-items:center;gap:8px}
+.mcard .aw{font-family:var(--f-word);font-size:1.9rem;font-weight:700}
+.mcard .aw b{text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:5px}
 /* schulte */
 .grid{display:grid;gap:8px;width:100%;max-width:440px}
 .cell{aspect-ratio:1;max-width:100%;background:var(--card);border:3px solid var(--line);border-radius:14px;font-family:var(--f-word);font-weight:700;font-size:clamp(1.2rem,6vw,2.2rem)}
@@ -355,6 +360,7 @@ img{user-select:none;-webkit-user-drag:none}
     <div class="panel" id="paSettings"></div>
     <div class="panel"><span class="lbl" id="pa-hist"></span><div class="hist" id="histList"></div></div>
     <div class="panel"><span class="lbl" id="pa-how"></span><p class="note" id="pa-howText"></p></div>
+    <div class="panel" id="paPilot" hidden></div>
     <div class="panel" id="paDanger"></div>
   </section>
 </div>
@@ -441,6 +447,16 @@ LEVEL[0] = {min:1,len:4,opts:3,traps:1,flash:2500,grid:3}; // "learning letters"
 const ANCH = {"order": {"en": "SATPINMDGOCKEURHBFLJVWXYZQ", "ru": "АОУМСХШЫЛНРКПТИЗЙГВДБЖЕЬЯЮЁЧЭЦЩФЪ", "ua": "АОУМСХШИЛНРКПТІЗЙГВДБЖЕЬЯЮЇЄЧЦЩФҐ"}, "en": {"A": ["apple", "🍎"], "B": ["ball", "⚽"], "C": ["cat", "🐱"], "D": ["dog", "🐶"], "E": ["egg", "🥚"], "F": ["fish", "🐟"], "G": ["goat", "🐐"], "H": ["hat", "🎩"], "I": ["insect", "🐛"], "J": ["juice", "🧃"], "K": ["key", "🔑"], "L": ["lion", "🦁"], "M": ["moon", "🌙"], "N": ["nose", "👃"], "O": ["octopus", "🐙"], "P": ["pig", "🐷"], "Q": ["queen", "👸"], "R": ["rabbit", "🐰"], "S": ["sun", "☀️"], "T": ["tiger", "🐯"], "U": ["umbrella", "☂️"], "V": ["van", "🚐"], "W": ["whale", "🐋"], "X": ["fox", "🦊"], "Y": ["yo-yo", "🪀"], "Z": ["zebra", "🦓"]}, "ru": {"А": ["арбуз", "🍉"], "Б": ["банан", "🍌"], "В": ["волк", "🐺"], "Г": ["гриб", "🍄"], "Д": ["дом", "🏠"], "Е": ["енот", "🦝"], "Ё": ["ёжик", "🦔"], "Ж": ["жираф", "🦒"], "З": ["зебра", "🦓"], "И": ["индюк", "🦃"], "Й": ["йогурт", "🥛"], "К": ["кот", "🐱"], "Л": ["лиса", "🦊"], "М": ["мяч", "⚽"], "Н": ["нос", "👃"], "О": ["облако", "☁️"], "П": ["пчела", "🐝"], "Р": ["рыба", "🐟"], "С": ["сыр", "🧀"], "Т": ["тигр", "🐯"], "У": ["утка", "🦆"], "Ф": ["флаг", "🚩"], "Х": ["хлеб", "🍞"], "Ц": ["цыплёнок", "🐥"], "Ч": ["чашка", "☕"], "Ш": ["шар", "🎈"], "Щ": ["щётка", "🪥"], "Ъ": ["подъезд", "🏢"], "Ы": ["мышь", "🐭"], "Ь": ["конь", "🐴"], "Э": ["эскимо", "🍦"], "Ю": ["юла", "🪀"], "Я": ["яблоко", "🍎"]}, "ua": {"А": ["ананас", "🍍"], "Б": ["банан", "🍌"], "В": ["вовк", "🐺"], "Г": ["гарбуз", "🎃"], "Ґ": ["ґудзик", "🔘"], "Д": ["дім", "🏠"], "Е": ["екран", "📺"], "Є": ["єнот", "🦝"], "Ж": ["жираф", "🦒"], "З": ["зебра", "🦓"], "И": ["кит", "🐋"], "І": ["індик", "🦃"], "Ї": ["їжак", "🦔"], "Й": ["йогурт", "🥛"], "К": ["кіт", "🐱"], "Л": ["лисиця", "🦊"], "М": ["м'яч", "⚽"], "Н": ["ніс", "👃"], "О": ["окуляри", "👓"], "П": ["півень", "🐓"], "Р": ["риба", "🐟"], "С": ["сир", "🧀"], "Т": ["тигр", "🐯"], "У": ["усмішка", "😊"], "Ф": ["фламінго", "🦩"], "Х": ["хліб", "🍞"], "Ц": ["цибуля", "🧅"], "Ч": ["черепаха", "🐢"], "Ш": ["шапка", "🧢"], "Щ": ["щітка", "🪥"], "Ь": ["кінь", "🐴"], "Ю": ["юла", "🪀"], "Я": ["яблуко", "🍎"]}};
 const SYLC = 'МСХШЛНРКПТЗГВДБЖ', SYLV = {ru:'АОУЫИ',ua:'АОУИІ'}, SYLBAD = new Set(['ШЫ','ЖЫ','ГЫ','КЫ','ХЫ']);
 const isSyl = (l,x) => l!=='en'&&x.length===2&&SYLC.includes(x[0])&&SYLV[l].includes(x[1])&&!(l==='ru'&&SYLBAD.has(x));
+/* pilot: letters that turn into an object of the same shape (embedded mnemonics); control letters stay as plain cards */
+const MORPH = {ru:{'Д':['дом','d'],'Ж':['жук','zh'],'Г':['гусь','g'],'С':['сыр','s'],'Т':['табурет','t']}};
+const PILOT_CONTROL = ['Б','З','Ш','П','Л'];
+const morphOf = (l,ch) => MORPH[l]&&MORPH[l][ch];
+const vkey = (l,ch) => morphOf(l,ch)&&hasClip(l,'m:'+ch)?'m:'+ch:'a:'+ch;
+const blobs = {};
+function morphSrc(f){ // load into a blob so replay works even on servers without range requests
+  if(!blobs[f]) blobs[f]=fetch(f).then(r=>r.blob()).then(b=>URL.createObjectURL(b)).catch(()=>f);
+  return blobs[f];
+}
 const HOMO = new Set('ABCEHIKMOPTXYaceiopxyАВСЕНІКМОРТХУаеіорсху'); // letters that look the same across alphabets
 
 /* ---------- UI text ---------- */
@@ -488,6 +504,7 @@ const T = {
 
 /* ---------- extra UI text: questionnaire, test, plan, rewards ---------- */
 Object.assign(T.ru,{streak:'подряд',
+  pilotT:'Пилот: буквы-превращения',pilotText:'Проверяем, запоминаются ли буквы лучше, если буква на глазах превращается в предмет своей формы (Д — дом, Ж — жук, Г — гусь, С — сыр, Т — табурет). Для сравнения пять букв показаны обычными карточками (Б, З, Ш, П, Л). Шаг 1: ребёнок смотрит все 10 букв. Шаг 2, на следующий день: герой называет букву, ребёнок её находит. Если ребёнок уже проходил эти буквы в игре, сравнение будет менее точным.',pilot1:'Шаг 1. Показать 10 букв',pilot2:'Шаг 2. Проверка',pilotShown:'Готово. Проверку лучше сделать завтра.',pilotWhen:'Буквы показаны {d}. Проверку лучше делать на следующий день.',pilotM:'Буквы-превращения узнал',pilotC:'Обычные карточки узнал',pilotWin:'Превращения сработали лучше. Если так у нескольких детей, стоит делать их для всех букв.',pilotLose:'Обычные карточки сработали лучше. Перед тем как делать превращения для всех букв, стоит проверить ещё на одном-двух детях.',pilotTie:'Разницы нет. Нужна проверка ещё на одном-двух детях.',
   qAbc:'Знает ли буквы',abcOpts:['Почти не знает','Знает часть','Знает все'],
   mL:['Знакомлюсь с буквами','Слияние','Первый звук','Собери слово'],askSlide:'Нажми на букву — она побежит к соседке',askSyl:'Послушай и найди слог',askWord:'Послушай и найди слово',askSW:'Прочитай по слогам и найди картинку',replayL:'Ещё раз',letters:'Буквы',
   askLearn:'Нажми на букву, чтобы послушать ещё раз',askFind:'Послушай и найди букву',askSound:'С какой буквы начинается слово?',askBuild:'Собери слово',
@@ -521,6 +538,7 @@ Object.assign(T.ru,{streak:'подряд',
   ok:['Верно!','Умница!','Точно!','Да!','Супер!']
 });
 Object.assign(T.ua,{streak:'поспіль',
+  pilotT:'Пілот: літери-перетворення',pilotText:'Перевіряємо, чи краще запам\'ятовуються літери, якщо літера на очах перетворюється на предмет своєї форми (Д — дом, Ж — жук, Г — гусь, С — сыр, Т — табурет; пілот поки російською). Для порівняння пʼять літер показано звичайними картками (Б, З, Ш, П, Л). Крок 1: дитина дивиться всі 10 літер. Крок 2, наступного дня: герой називає літеру, дитина її знаходить.',pilot1:'Крок 1. Показати 10 літер',pilot2:'Крок 2. Перевірка',pilotShown:'Готово. Перевірку краще зробити завтра.',pilotWhen:'Літери показано {d}. Перевірку краще робити наступного дня.',pilotM:'Літери-перетворення впізнав',pilotC:'Звичайні картки впізнав',pilotWin:'Перетворення спрацювали краще. Якщо так у кількох дітей, варто робити їх для всіх літер.',pilotLose:'Звичайні картки спрацювали краще. Перш ніж робити перетворення для всіх літер, варто перевірити ще на одній-двох дітях.',pilotTie:'Різниці немає. Потрібна перевірка ще на одній-двох дітях.',
   qAbc:'Чи знає літери',abcOpts:['Майже не знає','Знає частину','Знає всі'],
   mL:['Знайомлюся з літерами','Злиття','Перший звук','Склади слово'],askSlide:'Натисни на літеру — вона побіжить до сусідки',askSyl:'Послухай і знайди склад',askWord:'Послухай і знайди слово',askSW:'Прочитай по складах і знайди картинку',replayL:'Ще раз',letters:'Літери',
   askLearn:'Натисни на літеру, щоб послухати ще раз',askFind:'Послухай і знайди літеру',askSound:'З якої літери починається слово?',askBuild:'Склади слово',
@@ -554,6 +572,7 @@ Object.assign(T.ua,{streak:'поспіль',
   ok:['Правильно!','Молодець!','Точно!','Так!','Супер!']
 });
 Object.assign(T.en,{streak:'in a row',
+  pilotT:'Pilot: letters that transform',pilotText:'We are checking whether letters stick better when the letter turns into an object of its own shape (Д is a house, Ж a beetle, Г a goose, С cheese, Т a stool; the pilot is in Russian for now). For comparison, five letters are shown as plain cards (Б, З, Ш, П, Л). Step 1: the child watches all 10 letters. Step 2, the next day: the hero names a letter and the child finds it.',pilot1:'Step 1. Show 10 letters',pilot2:'Step 2. Check',pilotShown:'Done. Better to run the check tomorrow.',pilotWhen:'Letters shown on {d}. Run the check the next day.',pilotM:'Transforming letters recognised',pilotC:'Plain cards recognised',pilotWin:'The transformations worked better. If this holds for a few children, make them for every letter.',pilotLose:'The plain cards worked better. Check with one or two more children before making transformations for every letter.',pilotTie:'No difference. Check with one or two more children.',
   qAbc:'Knows the letters',abcOpts:['Hardly any','Some','All of them'],
   mL:['Meet the letters','Blending','First sound','Build the word'],askSlide:'Tap a letter and watch them slide together',askSyl:'Listen and find the syllable',askWord:'Listen and find the word',askSW:'Read the parts and find the picture',replayL:'Again',letters:'Letters',
   askLearn:'Tap the letter to hear it again',askFind:'Listen and find the letter',askSound:'Which letter does the word start with?',askBuild:'Build the word',
@@ -868,8 +887,8 @@ function next(){
   clearTimers();
   if(G.i>=G.tasks.length) return finishRun();
   const k=G.tasks[G.i];
-  $('prog').style.width=(G.done/G.total*100)+'%';
-  $('countTxt').textContent=`${Math.min(G.done+1,G.total)}/${G.total}`;
+  $('prog').style.width=(G.total?G.done/G.total:G.i/G.tasks.length)*100+'%';
+  $('countTxt').textContent=G.total?`${Math.min(G.done+1,G.total)}/${G.total}`:`${G.i+1}/${G.tasks.length}`;
   $('tip').textContent=''; $('tip').className='tip'; $('speed').hidden=true;
   $('streak').hidden=G.streak<3;
   const intro=k.t==='intro';
@@ -899,11 +918,17 @@ const L1 = ch => P.caps?ch:ch.toLowerCase();
 function renderCard(k,first){
   const l=k.l, ch=k.ch;
   $('stage').className='stage '+l; setWho(l); $('ask').textContent=t('askLearn'); $('opts').style.visibility='visible';
-  $('word').innerHTML=`<div class="lcard"><button class="bigl" id="lplay">${ch}${ch.toLowerCase()!==ch?ch.toLowerCase():''}</button>${anchorHtml(l,ch)}</div>`;
+  const mo=morphOf(l,ch), vk=vkey(l,ch);
+  if(mo){ // the letter turns into a thing of the same shape and back
+    const w=[...show(mo[0])].map(c=>c.toUpperCase()===ch?`<b>${c}</b>`:c).join('');
+    $('word').innerHTML=`<div class="lcard"><button class="bigl" id="lplay">${ch}${ch.toLowerCase()}</button><div class="mcard"><video class="morph" id="mv" muted playsinline preload="auto"></video><span class="aw">${w}</span></div></div>`;
+    const v=$('mv'); morphSrc(`morph/${l}-${mo[1]}.mp4`).then(u=>{ v.src=u; v.play().catch(()=>{}); });
+    v.onclick=()=>{ v.currentTime=0; v.play().catch(()=>{}); voice([[l,vk]]); };
+  } else $('word').innerHTML=`<div class="lcard"><button class="bigl" id="lplay">${ch}${ch.toLowerCase()!==ch?ch.toLowerCase():''}</button>${anchorHtml(l,ch)}</div>`;
   $('opts').style.gridTemplateColumns='minmax(0,1fr)';
   $('opts').innerHTML=`<button class="btn" id="cardNext">${t('nextL')} →</button>`;
-  voice(first?[line(l,'learn'),[l,'a:'+ch]]:[[l,'a:'+ch]]);
-  $('lplay').onclick=()=>{ sfx.pop(); voice([[l,'a:'+ch]]); };
+  voice(first?[line(l,'learn'),[l,vk]]:[[l,vk]]);
+  $('lplay').onclick=()=>{ sfx.pop(); voice([[l,vk]]); if(mo){ const v=$('mv'); v.currentTime=0; v.play().catch(()=>{}); } };
   $('cardNext').onclick=()=>{ sfx.pop(); G.i++; next(); };
 }
 function letterChoice(k,opts,onDone){
@@ -919,14 +944,14 @@ function renderFind(k,first){
   const l=k.l, ch=k.ch;
   $('stage').className='stage '+l; setWho(l); $('ask').textContent=t('askFind');
   $('word').innerHTML=`<button class="replay" id="lplay" aria-label="replay">🔊</button>`;
-  const say=()=>voice([[l,'a:'+ch]]);
-  voice(first?[line(l,'find'),[l,'a:'+ch]]:[[l,'a:'+ch]]); $('lplay').onclick=()=>{ sfx.pop(); say(); };
+  const vk=vkey(l,ch), say=()=>voice([[l,vk]]);
+  voice(first?[line(l,'find'),[l,vk]]:[[l,vk]]); $('lplay').onclick=()=>{ sfx.pop(); say(); };
   letterChoice(k,letterOpts(l,ch),(c,b)=>{
     const ok=c===ch;
     if(ok) b.classList.add('right','pop');
     else { if(b) b.classList.add('wrong','shake'); $('opts').querySelector(`[data-c="${ch}"]`).classList.add('right'); }
     $('word').innerHTML=`<div class="lcard"><span class="bigl">${L1(ch)}</span>${anchorHtml(l,ch)}</div>`;
-    const d=voice(ok?(Math.random()<.5?[line(l,'ok1','ok2','ok3','ok4')]:[]):[line(l,'bad1','bad2'),[l,'a:'+ch]]);
+    const d=voice(ok?(Math.random()<.5?[line(l,'ok1','ok2','ok3','ok4')]:[]):[line(l,'bad1','bad2'),[l,vk]]);
     answered(ok,{kind:'find',l,ch,ok},l,Math.max(ok?1300:2400,d+250));
   });
 }
@@ -1153,6 +1178,12 @@ function finishSchulte(){
 
 /* ---------- finishing a run ---------- */
 function finishRun(){
+  if(G.ctx.kind==='pilotShow'){ P.pilot={shown:today(),result:(P.pilot||{}).result||null}; save(); toast(t('pilotShown')); return renderParent(); }
+  if(G.ctx.kind==='pilot'){
+    const m=G.log.filter(r=>morphOf('ru',r.ch)), c=G.log.filter(r=>!morphOf('ru',r.ch));
+    P.pilot=Object.assign(P.pilot||{},{result:{d:today(),morph:m.filter(r=>r.ok).length,control:c.filter(r=>r.ok).length,n:5}}); save();
+    sfx.win(); return renderParent();
+  }
   const scored=G.log, right=scored.filter(r=>r.ok).length, acc=scored.length?right/scored.length:0;
   if(G.ctx.kind==='test'){
     const res=computeTest(scored), prevTest=lastTest();
@@ -1456,6 +1487,18 @@ function renderParent(){
   // voice availability
   const vn=$('voiceNote'), miss=voices.length?P.langs.filter(l=>!voiceFor(l)).map(l=>LANG[l].name):[];
   vn.hidden=!S.sound||!miss.length; vn.textContent=miss.length?fmt(t('noVoice'),{x:miss.join(', ')}):'';
+  // pilot: letters that turn into things vs plain cards
+  const pb=$('paPilot');
+  if(P.langs.includes('ru')){
+    const r=P.pilot&&P.pilot.result;
+    pb.innerHTML=`<span class="lbl">${t('pilotT')}</span><p class="note">${t('pilotText')}</p>
+      <div class="btns"><button class="btn small" id="pil1">${t('pilot1')}</button><button class="btn small ghost" id="pil2" ${P.pilot&&P.pilot.shown?'':'disabled'}>${t('pilot2')}</button></div>
+      ${P.pilot&&P.pilot.shown?`<p class="note">${fmt(t('pilotWhen'),{d:P.pilot.shown})}</p>`:''}
+      ${r?`<div class="kv"><span>${t('pilotM')}</span><b>${r.morph} / ${r.n}</b></div><div class="kv"><span>${t('pilotC')}</span><b>${r.control} / ${r.n}</b></div><p class="note">${t(r.morph>r.control?'pilotWin':r.morph<r.control?'pilotLose':'pilotTie')}</p>`:''}`;
+    pb.hidden=false;
+    $('pil1').onclick=()=>run(shuffle(Object.keys(MORPH.ru).concat(PILOT_CONTROL)).map(ch=>({t:'card',l:'ru',ch})),{kind:'pilotShow',l:'ru'});
+    $('pil2').onclick=()=>run(shuffle(Object.keys(MORPH.ru).concat(PILOT_CONTROL)).map(ch=>({t:'find',l:'ru',ch})),{kind:'pilot',l:'ru',type:'find'});
+  } else pb.hidden=true;
   // history
   $('histList').innerHTML=P.hist.length?P.hist.slice(0,10).map(h=>`<div><span>${h.d} · ${t('mt')[h.kind]||h.kind}${h.l?' · '+LANG[h.l].name:''}</span><span>${h.acc}%${h.ms?' · '+h.ms+' '+t('ms'):''}</span></div>`).join(''):`<p class="note">${t('noHist')}</p>`;
   // delete
