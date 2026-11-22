@@ -22,7 +22,10 @@
   "learn": "Let's meet some new letters!",
   "find": "Listen and find the letter.",
   "sound": "Which letter does this word start with?",
-  "build": "Make the word from the letters."
+  "build": "Make the word from the letters.",
+  "slide": "Tap the letters and they slide together!",
+  "syl": "Listen and find the word.",
+  "sw": "Read the sounds and find the picture."
  },
  "ru": {
   "hello": "Привет! Я лис Рыжик. Давай читать вместе!",
@@ -47,7 +50,10 @@
   "learn": "Давай познакомимся с новыми буквами!",
   "find": "Послушай и найди букву.",
   "sound": "С какой буквы начинается это слово?",
-  "build": "Собери слово из букв."
+  "build": "Собери слово из букв.",
+  "slide": "Буква бежит к букве. Нажми на неё!",
+  "syl": "Послушай и найди слог.",
+  "sw": "Прочитай по слогам и найди картинку."
  },
  "ua": {
   "hello": "Привіт! Я Соняшник Сонько. Давай читати разом!",
@@ -72,6 +78,9 @@
   "learn": "Давай познайомимося з новими літерами!",
   "find": "Послухай і знайди літеру.",
   "sound": "З якої літери починається це слово?",
-  "build": "Склади слово з літер."
+  "build": "Склади слово з літер.",
+  "slide": "Літера біжить до літери. Натисни на неї!",
+  "syl": "Послухай і знайди склад.",
+  "sw": "Прочитай по складах і знайди картинку."
  }
 }

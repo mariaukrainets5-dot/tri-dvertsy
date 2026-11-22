@@ -12,7 +12,8 @@ FF = "/opt/homebrew/opt/ffmpeg-full/bin/"
 SR = 24000
 reqs = json.load(open(src / "reqs.json")); keys = reqs["keys"]
 chunks = json.load(open(src / "chunks.json"))
-achunks = json.load(open(src / "achunks.json"))  # letters: "Буква Б, как банан." — comma pause inside, so a longer gap splits them
+achunks = json.load(open(src / "achunks.json"))
+schunks = json.load(open(src / "schunks.json"))  # syllables for blending: "Ма." "Мо." ...  # letters: "Буква Б, как банан." — comma pause inside, so a longer gap splits them
 lines = json.load(open(src / "lines.json"))  # a recorded line that is no longer listed here is left out
 
 def key_of(tag):
@@ -68,6 +69,12 @@ for f in sorted(raw.glob("*.mp3")):
         if not runs:
             bad.append(f"{k}: pauses unclear"); continue
         clips[l] += [("w:" + w, x[a:b]) for w, (a, b) in zip(words, runs)]
+    elif kind == "s":
+        syl = schunks[l][int(rest)]
+        runs = split_n(x, len(syl))
+        if not runs:
+            bad.append(f"{k}: pauses unclear"); continue
+        clips[l] += [("s:" + c, x[a:b]) for c, (a, b) in zip(syl, runs)]
     elif kind == "a":
         letters = achunks[l][int(rest)]
         runs = split_n(x, len(letters))

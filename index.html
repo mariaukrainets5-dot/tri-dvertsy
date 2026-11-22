@@ -178,6 +178,20 @@ img{user-select:none;-webkit-user-drag:none}
 .ltiles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .ltile{width:62px;height:62px;border-radius:16px;background:var(--card);border:3px solid var(--line);font-family:var(--f-word);font-size:2.1rem;font-weight:700}
 .ltile:disabled{opacity:.2}
+/* blending */
+.slide{display:flex;align-items:flex-end;justify-content:center;gap:clamp(40px,14vw,110px);transition:gap .9s cubic-bezier(.5,0,.3,1);padding:14px 0 16px;position:relative;width:100%}
+.slide::before{content:"";position:absolute;left:12%;right:12%;bottom:4px;height:8px;border-radius:8px;background:var(--line)}
+.slide .st{font-family:var(--f-word);font-weight:700;font-size:clamp(3.4rem,15vw,5.4rem);line-height:1;padding:8px 14px;border-radius:18px;background:var(--card);border:4px solid var(--line);transition:transform .4s,border-color .4s,background .4s;position:relative}
+.stage.en .slide .st.v{color:var(--en)} .stage.ru .slide .st.v{color:var(--ru)} .stage.ua .slide .st.v{color:var(--ua-ink)}
+.slide:not(.joined) .st:first-child{animation:nudge 1.3s ease-in-out infinite}
+.slide.joined .st{border-color:transparent;background:transparent;transform:scale(1.12)}
+.slide.joined{gap:0}
+@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(10px)}}
+.sylchips{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;transition:gap .7s}
+.chip-s{font-family:var(--f-word);font-weight:700;font-size:clamp(2.2rem,10vw,3rem);padding:6px 14px;border-radius:16px;background:var(--card);border:3px solid var(--line);transition:all .5s}
+.chip-s.on{border-color:var(--ink)}
+.sylchips.joined{gap:0} .sylchips.joined .chip-s{border-color:transparent;background:transparent;padding:6px 1px}
+.opt.syl{font-family:var(--f-word);font-weight:700;font-size:2.4rem}
 /* schulte */
 .grid{display:grid;gap:8px;width:100%;max-width:440px}
 .cell{aspect-ratio:1;max-width:100%;background:var(--card);border:3px solid var(--line);border-radius:14px;font-family:var(--f-word);font-weight:700;font-size:clamp(1.2rem,6vw,2.2rem)}
@@ -425,6 +439,8 @@ const ROUND = 10;
 LEVEL[0] = {min:1,len:4,opts:3,traps:1,flash:2500,grid:3}; // "learning letters": letters, first sound, building short words
 /* letters in teaching order (vowels and easy consonants first) and an anchor word + picture for each */
 const ANCH = {"order": {"en": "SATPINMDGOCKEURHBFLJVWXYZQ", "ru": "АОУМСХШЫЛНРКПТИЗЙГВДБЖЕЬЯЮЁЧЭЦЩФЪ", "ua": "АОУМСХШИЛНРКПТІЗЙГВДБЖЕЬЯЮЇЄЧЦЩФҐ"}, "en": {"A": ["apple", "🍎"], "B": ["ball", "⚽"], "C": ["cat", "🐱"], "D": ["dog", "🐶"], "E": ["egg", "🥚"], "F": ["fish", "🐟"], "G": ["goat", "🐐"], "H": ["hat", "🎩"], "I": ["insect", "🐛"], "J": ["juice", "🧃"], "K": ["key", "🔑"], "L": ["lion", "🦁"], "M": ["moon", "🌙"], "N": ["nose", "👃"], "O": ["octopus", "🐙"], "P": ["pig", "🐷"], "Q": ["queen", "👸"], "R": ["rabbit", "🐰"], "S": ["sun", "☀️"], "T": ["tiger", "🐯"], "U": ["umbrella", "☂️"], "V": ["van", "🚐"], "W": ["whale", "🐋"], "X": ["fox", "🦊"], "Y": ["yo-yo", "🪀"], "Z": ["zebra", "🦓"]}, "ru": {"А": ["арбуз", "🍉"], "Б": ["банан", "🍌"], "В": ["волк", "🐺"], "Г": ["гриб", "🍄"], "Д": ["дом", "🏠"], "Е": ["енот", "🦝"], "Ё": ["ёжик", "🦔"], "Ж": ["жираф", "🦒"], "З": ["зебра", "🦓"], "И": ["индюк", "🦃"], "Й": ["йогурт", "🥛"], "К": ["кот", "🐱"], "Л": ["лиса", "🦊"], "М": ["мяч", "⚽"], "Н": ["нос", "👃"], "О": ["облако", "☁️"], "П": ["пчела", "🐝"], "Р": ["рыба", "🐟"], "С": ["сыр", "🧀"], "Т": ["тигр", "🐯"], "У": ["утка", "🦆"], "Ф": ["флаг", "🚩"], "Х": ["хлеб", "🍞"], "Ц": ["цыплёнок", "🐥"], "Ч": ["чашка", "☕"], "Ш": ["шар", "🎈"], "Щ": ["щётка", "🪥"], "Ъ": ["подъезд", "🏢"], "Ы": ["мышь", "🐭"], "Ь": ["конь", "🐴"], "Э": ["эскимо", "🍦"], "Ю": ["юла", "🪀"], "Я": ["яблоко", "🍎"]}, "ua": {"А": ["ананас", "🍍"], "Б": ["банан", "🍌"], "В": ["вовк", "🐺"], "Г": ["гарбуз", "🎃"], "Ґ": ["ґудзик", "🔘"], "Д": ["дім", "🏠"], "Е": ["екран", "📺"], "Є": ["єнот", "🦝"], "Ж": ["жираф", "🦒"], "З": ["зебра", "🦓"], "И": ["кит", "🐋"], "І": ["індик", "🦃"], "Ї": ["їжак", "🦔"], "Й": ["йогурт", "🥛"], "К": ["кіт", "🐱"], "Л": ["лисиця", "🦊"], "М": ["м'яч", "⚽"], "Н": ["ніс", "👃"], "О": ["окуляри", "👓"], "П": ["півень", "🐓"], "Р": ["риба", "🐟"], "С": ["сир", "🧀"], "Т": ["тигр", "🐯"], "У": ["усмішка", "😊"], "Ф": ["фламінго", "🦩"], "Х": ["хліб", "🍞"], "Ц": ["цибуля", "🧅"], "Ч": ["черепаха", "🐢"], "Ш": ["шапка", "🧢"], "Щ": ["щітка", "🪥"], "Ь": ["кінь", "🐴"], "Ю": ["юла", "🪀"], "Я": ["яблуко", "🍎"]}};
+const SYLC = 'МСХШЛНРКПТЗГВДБЖ', SYLV = {ru:'АОУЫИ',ua:'АОУИІ'}, SYLBAD = new Set(['ШЫ','ЖЫ','ГЫ','КЫ','ХЫ']);
+const isSyl = (l,x) => l!=='en'&&x.length===2&&SYLC.includes(x[0])&&SYLV[l].includes(x[1])&&!(l==='ru'&&SYLBAD.has(x));
 const HOMO = new Set('ABCEHIKMOPTXYaceiopxyАВСЕНІКМОРТХУаеіорсху'); // letters that look the same across alphabets
 
 /* ---------- UI text ---------- */
@@ -473,7 +489,7 @@ const T = {
 /* ---------- extra UI text: questionnaire, test, plan, rewards ---------- */
 Object.assign(T.ru,{streak:'подряд',
   qAbc:'Знает ли буквы',abcOpts:['Почти не знает','Знает часть','Знает все'],
-  mL:['Знакомлюсь с буквами','Первый звук','Собери слово'],letters:'Буквы',
+  mL:['Знакомлюсь с буквами','Слияние','Первый звук','Собери слово'],askSlide:'Нажми на букву — она побежит к соседке',askSyl:'Послушай и найди слог',askWord:'Послушай и найди слово',askSW:'Прочитай по слогам и найди картинку',replayL:'Ещё раз',letters:'Буквы',
   askLearn:'Нажми на букву, чтобы послушать ещё раз',askFind:'Послушай и найди букву',askSound:'С какой буквы начинается слово?',askBuild:'Собери слово',
   nextL:'Дальше',la:'Узнаёт буквы',
   wTitle:'Давайте познакомимся',wLead:'Несколько вопросов для взрослого. По ответам и короткой проверке игра соберёт план из 12 занятий.',
@@ -491,8 +507,8 @@ Object.assign(T.ru,{streak:'подряд',
   todayK:'Заданий на сегодня: {k}. Нажимай на первое!',dayDone:'Ура, занятие пройдено! Следующее откроется завтра.',
   nextReady:'Новое занятие уже ждёт!',pathDone:'Весь путь пройден! Взрослый может собрать новый план.',
   dayN:'Занятие {n} из {m}',testDay:'Проверка',openNow:'Открыть следующее сейчас',startTest:'Пройти проверку',
-  mt:{learn:'Знакомлюсь с буквами',sound:'Первый звук',build:'Собери слово',find:'Найди букву',read:'Прочитай и найди',flash:'Вспышка',which:'Чьё слово?',letters:'Буквы по порядку',test:'Проверка'},
-  md:{learn:'новые буквы: {x}',sound:'{n} картинок',build:'{n} слова',read:'{n} слов',flash:'{n} слов, всё быстрее',which:'{n} слов',letters:'таблица {g}',test:'5 минут, как в первый раз'},
+  mt:{blend:'Слияние',learn:'Знакомлюсь с буквами',sound:'Первый звук',build:'Собери слово',find:'Найди букву',read:'Прочитай и найди',flash:'Вспышка',which:'Чьё слово?',letters:'Буквы по порядку',test:'Проверка'},
+  md:{blend:'слоги и слова',learn:'новые буквы: {x}',sound:'{n} картинок',build:'{n} слова',read:'{n} слов',flash:'{n} слов, всё быстрее',which:'{n} слов',letters:'таблица {g}',test:'5 минут, как в первый раз'},
   focus:'тренируем {x}',free:'Свободная игра',album:'Альбом наклеек',parentBtn:'Для взрослых',
   alLead:'За каждое занятие на пути — новая наклейка. Собери все двенадцать!',
   reward:'Новая наклейка!',rewardText:'Занятие {n} пройдено.',cont:'Дальше',toPlan:'К плану',
@@ -501,12 +517,12 @@ Object.assign(T.ru,{streak:'подряд',
   retest:'Пройти проверку заново',rebuild:'Пересобрать план',rebuilt:'План пересобран.',showRep:'Открыть отчёт о проверке',
   hist:'Последние занятия',noHist:'Пока пусто.',del:'Удалить профиль',delSure:'Удалить профиль «{n}»? Весь прогресс пропадёт.',delYes:'Да, удалить',
   how:'Как устроен план',
-  howText:'Проверка смотрит три вещи: какие слова ребёнок читает (короткие или длинные), как быстро узнаёт слово со вспышки и путает ли языки. Из этого собирается путь из 12 занятий: 10 обычных и 2 проверки. Больше времени получает язык, где ребёнку труднее, и язык, которого нет в школе. В каждом занятии 2–4 задания по 2–3 минуты. Буквы-двойники, на которых были ошибки, попадаются в словах чаще. После двух заданий подряд почти без ошибок уровень повышается сам. После проверки на шестом занятии вторая половина пути пересобирается. Занятие открывается раз в день, чтобы чтение стало привычкой. Если ребёнок пока не читает слова на каком-то языке, путь по нему начинается с букв: три новые буквы за занятие, «Первый звук» и «Собери слово». Когда все буквы пройдены, начинается чтение.',
+  howText:'Проверка смотрит три вещи: какие слова ребёнок читает (короткие или длинные), как быстро узнаёт слово со вспышки и путает ли языки. Из этого собирается путь из 12 занятий: 10 обычных и 2 проверки. Больше времени получает язык, где ребёнку труднее, и язык, которого нет в школе. В каждом занятии 2–4 задания по 2–3 минуты. Буквы-двойники, на которых были ошибки, попадаются в словах чаще. После двух заданий подряд почти без ошибок уровень повышается сам. После проверки на шестом занятии вторая половина пути пересобирается. Занятие открывается раз в день, чтобы чтение стало привычкой. Если ребёнок пока не читает слова на каком-то языке, путь по нему начинается с букв: три новые буквы за занятие, «Слияние» (буква бежит к букве: М + А = МА, потом слова по слогам), «Первый звук» и «Собери слово». Когда все буквы пройдены, начинается чтение.',
   ok:['Верно!','Умница!','Точно!','Да!','Супер!']
 });
 Object.assign(T.ua,{streak:'поспіль',
   qAbc:'Чи знає літери',abcOpts:['Майже не знає','Знає частину','Знає всі'],
-  mL:['Знайомлюся з літерами','Перший звук','Склади слово'],letters:'Літери',
+  mL:['Знайомлюся з літерами','Злиття','Перший звук','Склади слово'],askSlide:'Натисни на літеру — вона побіжить до сусідки',askSyl:'Послухай і знайди склад',askWord:'Послухай і знайди слово',askSW:'Прочитай по складах і знайди картинку',replayL:'Ще раз',letters:'Літери',
   askLearn:'Натисни на літеру, щоб послухати ще раз',askFind:'Послухай і знайди літеру',askSound:'З якої літери починається слово?',askBuild:'Склади слово',
   nextL:'Далі',la:'Впізнає літери',
   wTitle:'Познайомимося',wLead:'Кілька запитань для дорослого. За відповідями й короткою перевіркою гра складе план із 12 занять.',
@@ -524,8 +540,8 @@ Object.assign(T.ua,{streak:'поспіль',
   todayK:'Завдань на сьогодні: {k}. Тисни на перше!',dayDone:'Ура, заняття пройдено! Наступне відкриється завтра.',
   nextReady:'Нове заняття вже чекає!',pathDone:'Увесь шлях пройдено! Дорослий може скласти новий план.',
   dayN:'Заняття {n} з {m}',testDay:'Перевірка',openNow:'Відкрити наступне зараз',startTest:'Пройти перевірку',
-  mt:{learn:'Знайомлюся з літерами',sound:'Перший звук',build:'Склади слово',find:'Знайди літеру',read:'Прочитай і знайди',flash:'Спалах',which:'Чиє слово?',letters:'Літери по черзі',test:'Перевірка'},
-  md:{learn:'нові літери: {x}',sound:'{n} картинок',build:'{n} слова',read:'{n} слів',flash:'{n} слів, усе швидше',which:'{n} слів',letters:'таблиця {g}',test:'5 хвилин, як уперше'},
+  mt:{blend:'Злиття',learn:'Знайомлюся з літерами',sound:'Перший звук',build:'Склади слово',find:'Знайди літеру',read:'Прочитай і знайди',flash:'Спалах',which:'Чиє слово?',letters:'Літери по черзі',test:'Перевірка'},
+  md:{blend:'склади і слова',learn:'нові літери: {x}',sound:'{n} картинок',build:'{n} слова',read:'{n} слів',flash:'{n} слів, усе швидше',which:'{n} слів',letters:'таблиця {g}',test:'5 хвилин, як уперше'},
   focus:'тренуємо {x}',free:'Вільна гра',album:'Альбом наліпок',parentBtn:'Для дорослих',
   alLead:'За кожне заняття на шляху — нова наліпка. Збери всі дванадцять!',
   reward:'Нова наліпка!',rewardText:'Заняття {n} пройдено.',cont:'Далі',toPlan:'До плану',
@@ -534,12 +550,12 @@ Object.assign(T.ua,{streak:'поспіль',
   retest:'Пройти перевірку знову',rebuild:'Скласти план заново',rebuilt:'План складено заново.',showRep:'Відкрити звіт про перевірку',
   hist:'Останні заняття',noHist:'Поки порожньо.',del:'Видалити профіль',delSure:'Видалити профіль «{n}»? Увесь прогрес зникне.',delYes:'Так, видалити',
   how:'Як влаштований план',
-  howText:'Перевірка дивиться на три речі: які слова дитина читає (короткі чи довгі), як швидко впізнає слово зі спалаху і чи плутає мови. З цього складається шлях із 12 занять: 10 звичайних і 2 перевірки. Більше часу отримує мова, де дитині важче, і мова, якої немає в школі. У кожному занятті 2–4 завдання по 2–3 хвилини. Літери-двійники, на яких були помилки, трапляються в словах частіше. Після двох завдань поспіль майже без помилок рівень підвищується сам. Після перевірки на шостому занятті друга половина шляху складається заново. Заняття відкривається раз на день, щоб читання стало звичкою. Якщо дитина поки не читає слова якоюсь мовою, шлях нею починається з літер: три нові літери за заняття, «Перший звук» і «Склади слово». Коли всі літери пройдено, починається читання.',
+  howText:'Перевірка дивиться на три речі: які слова дитина читає (короткі чи довгі), як швидко впізнає слово зі спалаху і чи плутає мови. З цього складається шлях із 12 занять: 10 звичайних і 2 перевірки. Більше часу отримує мова, де дитині важче, і мова, якої немає в школі. У кожному занятті 2–4 завдання по 2–3 хвилини. Літери-двійники, на яких були помилки, трапляються в словах частіше. Після двох завдань поспіль майже без помилок рівень підвищується сам. Після перевірки на шостому занятті друга половина шляху складається заново. Заняття відкривається раз на день, щоб читання стало звичкою. Якщо дитина поки не читає слова якоюсь мовою, шлях нею починається з літер: три нові літери за заняття, «Злиття» (літера біжить до літери: М + А = МА, потім слова по складах), «Перший звук» і «Склади слово». Коли всі літери пройдено, починається читання.',
   ok:['Правильно!','Молодець!','Точно!','Так!','Супер!']
 });
 Object.assign(T.en,{streak:'in a row',
   qAbc:'Knows the letters',abcOpts:['Hardly any','Some','All of them'],
-  mL:['Meet the letters','First sound','Build the word'],letters:'Letters',
+  mL:['Meet the letters','Blending','First sound','Build the word'],askSlide:'Tap a letter and watch them slide together',askSyl:'Listen and find the syllable',askWord:'Listen and find the word',askSW:'Read the parts and find the picture',replayL:'Again',letters:'Letters',
   askLearn:'Tap the letter to hear it again',askFind:'Listen and find the letter',askSound:'Which letter does the word start with?',askBuild:'Build the word',
   nextL:'Next',la:'Recognises letters',
   wTitle:'Let’s get to know each other',wLead:'A few questions for the grown-up. From your answers and a short check, the game builds a plan of 12 sessions.',
@@ -557,8 +573,8 @@ Object.assign(T.en,{streak:'in a row',
   todayK:'Tasks for today: {k}. Tap the first one!',dayDone:'Hooray, session done! The next one opens tomorrow.',
   nextReady:'A new session is waiting!',pathDone:'You walked the whole path! A grown-up can build a new plan.',
   dayN:'Session {n} of {m}',testDay:'Check',openNow:'Open the next one now',startTest:'Take the check',
-  mt:{learn:'Meet the letters',sound:'First sound',build:'Build the word',find:'Find the letter',read:'Read and find',flash:'Flash',which:'Whose word?',letters:'Letters in order',test:'Check'},
-  md:{learn:'new letters: {x}',sound:'{n} pictures',build:'{n} words',read:'{n} words',flash:'{n} words, faster and faster',which:'{n} words',letters:'{g} grid',test:'5 minutes, like the first time'},
+  mt:{blend:'Blending',learn:'Meet the letters',sound:'First sound',build:'Build the word',find:'Find the letter',read:'Read and find',flash:'Flash',which:'Whose word?',letters:'Letters in order',test:'Check'},
+  md:{blend:'sounds into words',learn:'new letters: {x}',sound:'{n} pictures',build:'{n} words',read:'{n} words',flash:'{n} words, faster and faster',which:'{n} words',letters:'{g} grid',test:'5 minutes, like the first time'},
   focus:'practising {x}',free:'Free play',album:'Sticker album',parentBtn:'For grown-ups',
   alLead:'Every session on the path gives a new sticker. Collect all twelve!',
   reward:'New sticker!',rewardText:'Session {n} done.',cont:'Next',toPlan:'To the plan',
@@ -567,7 +583,7 @@ Object.assign(T.en,{streak:'in a row',
   retest:'Take the check again',rebuild:'Rebuild the plan',rebuilt:'Plan rebuilt.',showRep:'Open the check report',
   hist:'Recent sessions',noHist:'Nothing yet.',del:'Delete profile',delSure:'Delete “{n}”? All progress will be lost.',delYes:'Yes, delete',
   how:'How the plan works',
-  howText:'The check looks at three things: which words the child can read (short or long), how fast they recognise a flashed word, and whether they mix up languages. From that it builds a path of 12 sessions: 10 regular ones and 2 checks. More time goes to the language the child finds hardest and to the one not used at school. Each session has 2–4 tasks of 2–3 minutes. Look-alike letters that caused mistakes show up in words more often. Two tasks in a row with almost no mistakes raise the level automatically. After the check in session 6, the second half of the path is rebuilt. One session opens per day, to turn reading into a habit. If the child can’t read words in a language yet, that language starts with letters: three new letters per session, “First sound” and “Build the word”. Once all the letters are done, reading begins.',
+  howText:'The check looks at three things: which words the child can read (short or long), how fast they recognise a flashed word, and whether they mix up languages. From that it builds a path of 12 sessions: 10 regular ones and 2 checks. More time goes to the language the child finds hardest and to the one not used at school. Each session has 2–4 tasks of 2–3 minutes. Look-alike letters that caused mistakes show up in words more often. Two tasks in a row with almost no mistakes raise the level automatically. After the check in session 6, the second half of the path is rebuilt. One session opens per day, to turn reading into a habit. If the child can’t read words in a language yet, that language starts with letters: three new letters per session, “Blending” (letters slide together: c + a + t = cat; syllables like МА in Russian and Ukrainian), “First sound” and “Build the word”. Once all the letters are done, reading begins.',
   ok:['Right!','Well done!','Yes!','Spot on!','Super!']
 });
 
@@ -795,6 +811,31 @@ function buildTasks(l,n){
   return good.concat(shuffle(pool).sort((a,b)=>a[l].length-b[l].length)).filter((x,i,a)=>a.indexOf(x)===i).slice(0,n)
     .sort((a,b)=>a[l].length-b[l].length).map(item=>({t:'build',l,item}));
 }
+/* blending: letter runs to letter (МА), hear-and-find syllables, words read by syllables */
+const allSyl = l => [...SYLC].flatMap(c=>[...SYLV[l]].map(v=>c+v)).filter(x=>isSyl(l,x));
+function sylSplit(l,w){ const u=w.toUpperCase(); if(u.length%2) return null; const out=[];
+  for(let i=0;i<u.length;i+=2){ const x=u.slice(i,i+2); if(!isSyl(l,x)) return null; out.push(x); } return out; }
+const VOW = /[АОУЫИІЕЁЮЯЄЇAEIOU]/i;
+const EN_CVC = [...new Set(WORDS.map(x=>x.en).concat(WHICH.en))].filter(w=>/^[a-z]{3}$/.test(w)&&!VOW.test(w[0])&&VOW.test(w[1])&&!VOW.test(w[2])&&w[2]!=='y');
+function blendTasks(l){
+  const out=[];
+  if(l==='en'){
+    const ws=shuffle(EN_CVC);
+    ws.slice(0,3).forEach(w=>out.push({t:'slide',l,parts:[...w],key:'w:'+w}));
+    ws.slice(3,9).forEach(w=>{ const near=shuffle(EN_CVC.filter(x=>x!==w&&(x[0]===w[0]||x[1]===w[1]||x[2]===w[2]))).slice(0,2);
+      out.push({t:'syl',l,key:'w:'+w,ans:w,opts:shuffle([w,...near])}); });
+    return out;
+  }
+  const all=allSyl(l), set=learned(l);
+  let pool=P.levels[l]===0?all.filter(x=>set.includes(x[0])&&set.includes(x[1])):all; if(pool.length<6) pool=all.filter(x=>'МСЛНАОУ'.includes(x[0]));
+  pool=shuffle(pool);
+  pool.slice(0,3).forEach(x=>out.push({t:'slide',l,parts:[...x],key:'s:'+x}));
+  pool.slice(3,8).forEach(x=>{ const sameC=shuffle(all.filter(y=>y[0]===x[0]&&y!==x))[0], sameV=shuffle(all.filter(y=>y[1]===x[1]&&y!==x))[0];
+    out.push({t:'syl',l,key:'s:'+x,ans:x,opts:shuffle([x,sameC,sameV])}); });
+  shuffle(WORDS.map(item=>({item,sy:sylSplit(l,item[l])})).filter(x=>x.sy&&x.sy.length>=2)).slice(0,3)
+    .forEach(x=>out.push({t:'sw',l,item:x.item,sy:x.sy}));
+  return out;
+}
 function buildTest(){
   const tasks=[{t:'intro',kind:'start'}];
   P.langs.forEach(l=>{
@@ -816,7 +857,7 @@ function buildTest(){
 /* ---------- the runner: one engine for free play, missions and the check ---------- */
 let G=null;
 function run(tasks,ctx){
-  G={tasks,ctx,i:0,log:[],streak:0,ms:{},best:{},told:{},done:0,total:tasks.filter(x=>x.t!=='intro'&&x.t!=='card').length};
+  G={tasks,ctx,i:0,log:[],streak:0,ms:{},best:{},told:{},done:0,total:tasks.filter(x=>!['intro','card','slide'].includes(x.t)).length};
   go('play'); chrome(); next();
 }
 function setWho(l,state){
@@ -841,6 +882,9 @@ function next(){
   }
   const first=G.ctx.kind!=='test'&&!G.told[k.t]; G.told[k.t]=1;
   if(k.t==='card') return renderCard(k,first);
+  if(k.t==='slide') return renderSlide(k,first);
+  if(k.t==='syl') return renderSyl(k,first);
+  if(k.t==='sw') return renderSW(k,first);
   if(k.t==='find') return renderFind(k,first&&G.ctx.type!=='learn');
   if(k.t==='sound') return renderSound(k,first);
   if(k.t==='build') return renderBuild(k,first);
@@ -885,6 +929,56 @@ function renderFind(k,first){
     const d=voice(ok?(Math.random()<.5?[line(l,'ok1','ok2','ok3','ok4')]:[]):[line(l,'bad1','bad2'),[l,'a:'+ch]]);
     answered(ok,{kind:'find',l,ch,ok},l,Math.max(ok?1300:2400,d+250));
   });
+}
+function renderSlide(k,first){
+  const l=k.l;
+  $('stage').className='stage '+l; setWho(l); $('ask').textContent=t('askSlide'); $('opts').style.visibility='visible';
+  $('word').innerHTML=`<div class="slide" id="slide">${k.parts.map(c=>`<button class="st ${VOW.test(c)?'v':''}">${show(c)}</button>`).join('')}</div>`;
+  $('opts').style.gridTemplateColumns='repeat(2,minmax(0,1fr))';
+  $('opts').innerHTML=`<button class="btn ghost" id="slAgain" hidden>${t('replayL')}</button><button class="btn" id="slNext" disabled>${t('nextL')} →</button>`;
+  if(first) voice([line(l,'slide')]);
+  const sl=$('slide'); let busy=false;
+  const go=()=>{ if(busy)return; busy=true; sfx.pop();
+    if(sl.classList.contains('joined')){ sl.classList.remove('joined'); return later(()=>{busy=false;go()},700); }
+    sl.classList.add('joined');
+    later(()=>{ voice([[l,k.key]]); sfx.ok(2); $('slAgain').hidden=false; $('slNext').disabled=false; busy=false; },900);
+  };
+  sl.onclick=e=>{ if(e.target.closest('.st')) go(); };
+  $('slAgain').onclick=go;
+  $('slNext').onclick=()=>{ sfx.pop(); G.i++; next(); };
+}
+function renderSyl(k,first){
+  const l=k.l;
+  $('stage').className='stage '+l; setWho(l); $('ask').textContent=t(l==='en'?'askWord':'askSyl');
+  $('word').innerHTML=`<button class="replay" id="lplay" aria-label="replay">🔊</button>`;
+  voice(first?[line(l,'syl'),[l,k.key]]:[[l,k.key]]); $('lplay').onclick=()=>{ sfx.pop(); voice([[l,k.key]]); };
+  $('opts').style.visibility='visible'; $('opts').style.gridTemplateColumns=`repeat(${k.opts.length},minmax(0,1fr))`;
+  $('opts').innerHTML=k.opts.map(x=>`<button class="opt syl" data-x="${x}">${show(x)}</button>`).join('');
+  let locked=false;
+  const done=(x,b)=>{ if(locked)return; locked=true; const ok=x===k.ans;
+    if(ok) b.classList.add('right','pop'); else { if(b) b.classList.add('wrong','shake'); $('opts').querySelector(`[data-x="${k.ans}"]`).classList.add('right'); }
+    const d=voice(ok?(Math.random()<.5?[line(l,'ok1','ok2','ok3','ok4')]:[]):[line(l,'bad1','bad2'),[l,k.key]]);
+    answered(ok,{kind:'syl',l,ok},l,Math.max(ok?1200:2400,d+250)); };
+  $('opts').onclick=e=>{ const b=e.target.closest('.opt'); if(b) done(b.dataset.x,b); };
+  $('skipBtn').onclick=()=>done(null,null);
+}
+function renderSW(k,first){
+  const l=k.l, item=k.item;
+  $('stage').className='stage '+l; setWho(l); $('ask').textContent=t('askSW');
+  $('word').innerHTML=`<div class="sylchips" id="chips">${k.sy.map(x=>`<button class="chip-s" data-x="${x}">${show(x)}</button>`).join('')}</div>`;
+  if(first) voice([line(l,'sw')]);
+  $('chips').onclick=e=>{ const b=e.target.closest('.chip-s'); if(!b)return; b.classList.add('on'); voice([[l,'s:'+b.dataset.x]]); };
+  const opts=optionsFor(item,l,3,0);
+  $('opts').style.visibility='visible'; $('opts').style.gridTemplateColumns='repeat(3,minmax(0,1fr))';
+  $('opts').innerHTML=opts.map((o,i)=>`<button class="opt" data-k="${i}" aria-label="${o.en}">${o.e}</button>`).join('');
+  let locked=false;
+  const done=(ok,b)=>{ if(locked)return; locked=true;
+    $('chips').classList.add('joined');
+    if(ok) b.classList.add('right','pop'); else { if(b) b.classList.add('wrong','shake'); $('opts').children[opts.indexOf(item)].classList.add('right'); }
+    const d=voice(ok?[[l,'w:'+item[l]],line(l,'ok1','ok2','ok3','ok4')]:[line(l,'bad2'),[l,'w:'+item[l]]]);
+    answered(ok,{kind:'sw',l,word:item[l],ok},l,Math.max(1600,d+250)); };
+  $('opts').onclick=e=>{ const b=e.target.closest('.opt'); if(b) done(opts[+b.dataset.k]===item,b); };
+  $('skipBtn').onclick=()=>done(false,null);
 }
 function renderSound(k,first){
   const l=k.l, w=k.item[l], ch=firstCh(w);
@@ -1138,12 +1232,13 @@ function buildPlan(keepBefore){
     const readM = l => P.levels[l]===0?{type:'sound',l}:{type:'read',l,focus:focusFor(l)};
     const readers=ls.filter(l=>P.levels[l]>0);
     if(lp===0){ // learning letters: new letters, first sound, building words, letter table
-      const c0=[{type:'learn',l:p},{type:'sound',l:p},P.abc[p]>=6?{type:'build',l:p}:{type:'letters',l:p},{type:'letters',l:p}];
+      const c0=[{type:'learn',l:p},P.abc[p]>=9?{type:'blend',l:p}:{type:'sound',l:p},{type:'sound',l:p},P.abc[p]>=6?{type:'build',l:p}:{type:'letters',l:p},{type:'letters',l:p}];
       if(q) c0.push(readM(q));
       const m0=[]; c0.forEach(c=>{ if(m0.length<k&&!m0.some(m=>m.type===c.type&&m.l===c.l)) m0.push(c); });
       steps.push({missions:m0,done:m0.map(()=>false)}); continue;
     }
     const cand=[{type:'read',l:p,focus:focusFor(p)}];
+    if(lp===1) cand.push({type:'blend',l:p}); // still reading letter by letter: practise blending
     cand.push(lp>=2||P.goal===1?{type:'flash',l:p}:{type:'letters',l:p});
     if(readers.length>1&&(P.goal===2||conf.length>1||s%2===0)) cand.push({type:'which',langs:conf.filter(l=>P.levels[l]>0).length>1?conf.filter(l=>P.levels[l]>0):readers});
     else cand.push(q?readM(q):{type:'letters',l:p});
@@ -1189,6 +1284,7 @@ function launchMission(si,mi){
   const m=P.plan.steps[si].missions[mi], ctx={kind:m.type==='test'?'test':'mission',step:si,mi,type:m.type,l:m.l};
   if(m.type==='letters') return startSchulte(m.l,ctx);
   if(m.type==='learn') return run(learnTasks(m.l,nextLetters(m.l)),ctx);
+  if(m.type==='blend') return run(blendTasks(m.l),ctx);
   if(m.type==='sound') return run(soundTasks(m.l,8),ctx);
   if(m.type==='build') return run(buildTasks(m.l,5),ctx);
   if(m.type==='test') return run(buildTest(),ctx);
@@ -1206,7 +1302,7 @@ function smoothPath(pts){
   }
   return d;
 }
-const MI = {learn:{en:'Aa',ru:'Аа',ua:'Аа'},sound:'🔊',build:'🧩',read:{en:'Cat',ru:'Кот',ua:'Кіт'},flash:'⚡',which:'?',letters:{en:'ABC',ru:'АБВ',ua:'АБВ'},test:'★'};
+const MI = {blend:{en:'cat',ru:'МА',ua:'МА'},learn:{en:'Aa',ru:'Аа',ua:'Аа'},sound:'🔊',build:'🧩',read:{en:'Cat',ru:'Кот',ua:'Кіт'},flash:'⚡',which:'?',letters:{en:'ABC',ru:'АБВ',ua:'АБВ'},test:'★'};
 function missionHtml(m,done,isNext,disabled){
   const cls=m.l||'mix', icon=typeof MI[m.type]==='string'?MI[m.type]:MI[m.type][m.l];
   const g=m.l?LEVEL[P.levels[m.l]].grid:3, gs=g?`${g}×${g}`:(m.l?ABC[m.l].length:'');
@@ -1261,8 +1357,8 @@ function renderHome(){
     if(wait){ $('openNow').hidden=false; $('openNow').textContent=t('openNow'); $('openNow').onclick=()=>{ P.plan.unlock=cur; save(); renderHome(); }; }
   }
   $('t-album').textContent=t('album'); $('t-parentBtn').textContent=t('parentBtn'); $('t-free').textContent=t('free');
-  const icons=['<b>к</b><b>і</b><b>т</b>','<b>⚡</b>','<b>ы</b><b>?</b><b>ї</b>','<b>А</b><b>Б</b><b>В</b>','<b>A</b><b>a</b>','<b>🔊</b>','<b>🧩</b>'];
-  const names=t('mL').concat(t('m').map(m=>m[0])), ids=[4,5,6,0,1,2,3];
+  const icons=['<b>к</b><b>і</b><b>т</b>','<b>⚡</b>','<b>ы</b><b>?</b><b>ї</b>','<b>А</b><b>Б</b><b>В</b>','<b>A</b><b>a</b>','<b>🔊</b>','<b>🧩</b>','<b>М</b><b>А</b>'];
+  const names=t('mL').concat(t('m').map(m=>m[0])), ids=[4,7,5,6,0,1,2,3];
   $('modeList').innerHTML=ids.map((id,i)=>`<button class="mode" data-mode="${id}"><span class="ico">${icons[id]}</span><h3>${names[i]}</h3></button>`).join('');
   if(P.pendingReward!=null) later(showReward,500);
 }
@@ -1274,12 +1370,13 @@ $('modeList').addEventListener('click',e=>{const b=e.target.closest('[data-mode]
   $('doorList').onclick=e=>{const d=e.target.closest('[data-door]');if(d){sfx.pop();startFree(m,d.dataset.door)}};
 });
 function startFree(m,l){
-  const ctx={kind:'free',l,type:['read','flash','which','letters','learn','sound','build'][m]};
+  const ctx={kind:'free',l,type:['read','flash','which','letters','learn','sound','build','blend'][m]};
   ctx.replay=()=>startFree(m,l);
   if(m===3) return startSchulte(l,ctx);
   if(m===4) return run(learnTasks(l,nextLetters(l)),ctx);
   if(m===5) return run(soundTasks(l,8),ctx);
   if(m===6) return run(buildTasks(l,5),ctx);
+  if(m===7) return run(blendTasks(l),ctx);
   run(picTasks(l,10,m===1),ctx);
 }
 function showReward(){
