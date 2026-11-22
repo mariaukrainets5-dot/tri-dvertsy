@@ -95,7 +95,7 @@ img{user-select:none;-webkit-user-drag:none}
 .mission.done .ck{background:var(--ok);border-color:var(--ok);color:#fff}
 .mission.next{border-color:var(--ink);box-shadow:0 3px 0 var(--ink)}
 
-.modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .mode{background:var(--card);border-radius:18px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:4px;min-width:0;border:2px solid transparent;transition:transform .15s,border-color .15s}
 .mode:hover{transform:translateY(-2px);border-color:var(--ink)}
 .mode .ico{font-family:var(--f-word);font-size:1.5rem;font-weight:700;height:34px;display:flex;align-items:center;gap:2px}
@@ -159,6 +159,25 @@ img{user-select:none;-webkit-user-drag:none}
 .pop{animation:pop .35s}
 @keyframes pop{50%{transform:scale(1.14)}}
 
+/* letters track */
+.lcard{display:flex;align-items:center;gap:22px;justify-content:center;flex-wrap:wrap}
+.bigl{font-family:var(--f-word);font-weight:700;font-size:clamp(4rem,18vw,6.5rem);line-height:1;padding:12px 26px;border-radius:24px;background:var(--card);border:4px solid var(--line);letter-spacing:.04em}
+.stage.en .bigl{border-color:var(--en);color:var(--en)} .stage.ru .bigl{border-color:var(--ru);color:var(--ru)} .stage.ua .bigl{border-color:var(--ua);color:var(--ua-ink)}
+.anc{display:flex;flex-direction:column;align-items:center;gap:2px}
+.anc .em{font-size:4.2rem;line-height:1.1}
+.anc .aw{font-family:var(--f-word);font-size:1.9rem;font-weight:700}
+.anc .aw b{text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:5px}
+.replay{font-size:2.4rem;width:92px;height:92px;border-radius:50%;background:var(--card);border:3px solid var(--line);animation:pulse 2s ease-in-out infinite}
+.pic{display:flex;align-items:center;gap:16px;justify-content:center}
+.pic .em{font-size:clamp(4rem,16vw,5.5rem);line-height:1}
+.pic .replay{width:72px;height:72px;font-size:1.9rem}
+.opt.letter{font-family:var(--f-word);font-weight:700;font-size:3rem}
+.lslots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.lslot{width:54px;height:64px;border-bottom:5px solid var(--ink);font-family:var(--f-word);font-size:2.4rem;font-weight:700;display:grid;place-items:center}
+.lslot.on{animation:pop .3s}
+.ltiles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.ltile{width:62px;height:62px;border-radius:16px;background:var(--card);border:3px solid var(--line);font-family:var(--f-word);font-size:2.1rem;font-weight:700}
+.ltile:disabled{opacity:.2}
 /* schulte */
 .grid{display:grid;gap:8px;width:100%;max-width:440px}
 .cell{aspect-ratio:1;max-width:100%;background:var(--card);border:3px solid var(--line);border-radius:14px;font-family:var(--f-word);font-weight:700;font-size:clamp(1.2rem,6vw,2.2rem)}
@@ -232,6 +251,7 @@ img{user-select:none;-webkit-user-drag:none}
       <div class="field"><span class="lbl" id="w-qLangs"></span><div class="row" id="wLangs"></div></div>
       <div class="field"><span class="lbl" id="w-qSchool"></span><div class="row" id="wSchool"></div></div>
       <div class="field"><span class="lbl" id="w-qMin"></span><div class="row" id="wMin"></div></div>
+      <div class="field"><span class="lbl" id="w-qAbc"></span><div class="row" id="wAbc"></div></div>
       <div class="field"><span class="lbl" id="w-qGoal"></span><div class="row" id="wGoal"></div></div>
       <div class="warn" id="wWarn" hidden></div>
       <div class="btns"><button class="btn" type="submit" id="w-start"></button><button class="btn ghost" type="button" id="w-cancel" hidden></button></div>
@@ -402,10 +422,14 @@ const LEVEL = { // word length range, answer options, look-alike traps, flash st
   4:{min:6,len:99,opts:4, traps:2, flash:550,  grid:0}
 };
 const ROUND = 10;
+LEVEL[0] = {min:1,len:4,opts:3,traps:1,flash:2500,grid:3}; // "learning letters": letters, first sound, building short words
+/* letters in teaching order (vowels and easy consonants first) and an anchor word + picture for each */
+const ANCH = {"order": {"en": "SATPINMDGOCKEURHBFLJVWXYZQ", "ru": "АОУМСХШЫЛНРКПТИЗЙГВДБЖЕЬЯЮЁЧЭЦЩФЪ", "ua": "АОУМСХШИЛНРКПТІЗЙГВДБЖЕЬЯЮЇЄЧЦЩФҐ"}, "en": {"A": ["apple", "🍎"], "B": ["ball", "⚽"], "C": ["cat", "🐱"], "D": ["dog", "🐶"], "E": ["egg", "🥚"], "F": ["fish", "🐟"], "G": ["goat", "🐐"], "H": ["hat", "🎩"], "I": ["insect", "🐛"], "J": ["juice", "🧃"], "K": ["key", "🔑"], "L": ["lion", "🦁"], "M": ["moon", "🌙"], "N": ["nose", "👃"], "O": ["octopus", "🐙"], "P": ["pig", "🐷"], "Q": ["queen", "👸"], "R": ["rabbit", "🐰"], "S": ["sun", "☀️"], "T": ["tiger", "🐯"], "U": ["umbrella", "☂️"], "V": ["van", "🚐"], "W": ["whale", "🐋"], "X": ["fox", "🦊"], "Y": ["yo-yo", "🪀"], "Z": ["zebra", "🦓"]}, "ru": {"А": ["арбуз", "🍉"], "Б": ["банан", "🍌"], "В": ["волк", "🐺"], "Г": ["гриб", "🍄"], "Д": ["дом", "🏠"], "Е": ["енот", "🦝"], "Ё": ["ёжик", "🦔"], "Ж": ["жираф", "🦒"], "З": ["зебра", "🦓"], "И": ["индюк", "🦃"], "Й": ["йогурт", "🥛"], "К": ["кот", "🐱"], "Л": ["лиса", "🦊"], "М": ["мяч", "⚽"], "Н": ["нос", "👃"], "О": ["облако", "☁️"], "П": ["пчела", "🐝"], "Р": ["рыба", "🐟"], "С": ["сыр", "🧀"], "Т": ["тигр", "🐯"], "У": ["утка", "🦆"], "Ф": ["флаг", "🚩"], "Х": ["хлеб", "🍞"], "Ц": ["цыплёнок", "🐥"], "Ч": ["чашка", "☕"], "Ш": ["шар", "🎈"], "Щ": ["щётка", "🪥"], "Ъ": ["подъезд", "🏢"], "Ы": ["мышь", "🐭"], "Ь": ["конь", "🐴"], "Э": ["эскимо", "🍦"], "Ю": ["юла", "🪀"], "Я": ["яблоко", "🍎"]}, "ua": {"А": ["ананас", "🍍"], "Б": ["банан", "🍌"], "В": ["вовк", "🐺"], "Г": ["гарбуз", "🎃"], "Ґ": ["ґудзик", "🔘"], "Д": ["дім", "🏠"], "Е": ["екран", "📺"], "Є": ["єнот", "🦝"], "Ж": ["жираф", "🦒"], "З": ["зебра", "🦓"], "И": ["кит", "🐋"], "І": ["індик", "🦃"], "Ї": ["їжак", "🦔"], "Й": ["йогурт", "🥛"], "К": ["кіт", "🐱"], "Л": ["лисиця", "🦊"], "М": ["м'яч", "⚽"], "Н": ["ніс", "👃"], "О": ["окуляри", "👓"], "П": ["півень", "🐓"], "Р": ["риба", "🐟"], "С": ["сир", "🧀"], "Т": ["тигр", "🐯"], "У": ["усмішка", "😊"], "Ф": ["фламінго", "🦩"], "Х": ["хліб", "🍞"], "Ц": ["цибуля", "🧅"], "Ч": ["черепаха", "🐢"], "Ш": ["шапка", "🧢"], "Щ": ["щітка", "🪥"], "Ь": ["кінь", "🐴"], "Ю": ["юла", "🪀"], "Я": ["яблуко", "🍎"]}};
+const HOMO = new Set('ABCEHIKMOPTXYaceiopxyАВСЕНІКМОРТХУаеіорсху'); // letters that look the same across alphabets
 
 /* ---------- UI text ---------- */
 const T = {
- ru:{title:'Три дверцы',langs:'На каких языках читает ребёнок',level:'Уровень',lv:['Только учусь','Читаю','Читаю быстро','Чемпион'],
+ ru:{title:'Три дверцы',langs:'На каких языках читает ребёнок',level:'Уровень',lv:['Учу буквы','Только учусь','Читаю','Читаю быстро','Чемпион'],
   caps:'БОЛЬШИЕ буквы',sound:'Голос',needTwo:'Для этой игры нужно хотя бы два языка.',
   m:[['Прочитай и найди','Читаешь слово — выбираешь картинку. Ловушки: кіт и кит, нос и ніс.'],
      ['Вспышка','Слово мелькает и прячется. Угадал — в следующий раз быстрее. Это скорочтение.'],
@@ -418,7 +442,7 @@ const T = {
   r3:'Отлично!',r2:'Хорошо!',r1:'Потренируемся ещё',rText:'Правильно {a} из {b}.',rFlash:' Самый быстрый показ: {x} мс.',rTime:'Время: {x} с.',rBest:' Рекорд: {x} с.',
   again:'Ещё раз',home:'Домой',noVoice:'На этом устройстве нет голоса для: {x}. Слова на этом языке звучать не будут — так лучше, чем читать их чужим голосом.',
   parent:'Для родителей',parentText:'У каждого языка свой цвет и свой герой: синяя сова — English, красная лиса — русский, жёлтый подсолнух — українська. Цвет включает нужный «набор букв» ещё до чтения, поэтому Р, Н, С и В перестают путаться. Начните с одного языка в день, а «Чьё слово?» — когда ребёнок уже читает на двух. 5–10 минут в день хватит.'},
- ua:{title:'Три дверцята',langs:'Якими мовами читає дитина',level:'Рівень',lv:['Тільки вчуся','Читаю','Читаю швидко','Чемпіон'],
+ ua:{title:'Три дверцята',langs:'Якими мовами читає дитина',level:'Рівень',lv:['Вчу літери','Тільки вчуся','Читаю','Читаю швидко','Чемпіон'],
   caps:'ВЕЛИКІ літери',sound:'Голос',needTwo:'Для цієї гри потрібні хоча б дві мови.',
   m:[['Прочитай і знайди','Читаєш слово — обираєш картинку. Пастки: кіт і кит, ніс і нос.'],
      ['Спалах','Слово блимає й ховається. Вгадав — наступного разу швидше. Це швидкочитання.'],
@@ -431,7 +455,7 @@ const T = {
   r3:'Чудово!',r2:'Добре!',r1:'Потренуємося ще',rText:'Правильно {a} з {b}.',rFlash:' Найшвидший показ: {x} мс.',rTime:'Час: {x} с.',rBest:' Рекорд: {x} с.',
   again:'Ще раз',home:'Додому',noVoice:'На цьому пристрої немає голосу для: {x}. Слова цією мовою не звучатимуть — це краще, ніж читати їх чужим голосом.',
   parent:'Для батьків',parentText:'Кожна мова має свій колір і героя: синя сова — English, червона лисиця — російська, жовтий соняшник — українська. Колір вмикає потрібний «набір літер» ще до читання, тож Р, Н, С і В перестають плутатися. Почніть з однієї мови на день, а «Чиє слово?» — коли дитина вже читає двома. 5–10 хвилин на день досить.'},
- en:{title:'Three Doors',langs:'Languages your child reads',level:'Level',lv:['Just starting','Reading','Reading fast','Champion'],
+ en:{title:'Three Doors',langs:'Languages your child reads',level:'Level',lv:['Learning letters','Just starting','Reading','Reading fast','Champion'],
   caps:'CAPITAL letters',sound:'Voice',needTwo:'This game needs at least two languages.',
   m:[['Read and find','Read the word, pick the picture. Traps: кіт vs кит, nose vs ніс.'],
      ['Flash','The word blinks and hides. Get it right and the next one is faster. Speed reading.'],
@@ -448,6 +472,10 @@ const T = {
 
 /* ---------- extra UI text: questionnaire, test, plan, rewards ---------- */
 Object.assign(T.ru,{streak:'подряд',
+  qAbc:'Знает ли буквы',abcOpts:['Почти не знает','Знает часть','Знает все'],
+  mL:['Знакомлюсь с буквами','Первый звук','Собери слово'],letters:'Буквы',
+  askLearn:'Нажми на букву, чтобы послушать ещё раз',askFind:'Послушай и найди букву',askSound:'С какой буквы начинается слово?',askBuild:'Собери слово',
+  nextL:'Дальше',la:'Узнаёт буквы',
   wTitle:'Давайте познакомимся',wLead:'Несколько вопросов для взрослого. По ответам и короткой проверке игра соберёт план из 12 занятий.',
   qName:'Как зовут ребёнка',qAge:'Возраст',ages:['4–5','6–7','8–9','10+'],qLangs:'На каких языках читает или учится читать',
   qSchool:'Язык школы или садика',qMin:'Сколько минут в день',mins:['5 минут','10 минут','15 минут'],
@@ -463,8 +491,8 @@ Object.assign(T.ru,{streak:'подряд',
   todayK:'Заданий на сегодня: {k}. Нажимай на первое!',dayDone:'Ура, занятие пройдено! Следующее откроется завтра.',
   nextReady:'Новое занятие уже ждёт!',pathDone:'Весь путь пройден! Взрослый может собрать новый план.',
   dayN:'Занятие {n} из {m}',testDay:'Проверка',openNow:'Открыть следующее сейчас',startTest:'Пройти проверку',
-  mt:{read:'Прочитай и найди',flash:'Вспышка',which:'Чьё слово?',letters:'Буквы по порядку',test:'Проверка'},
-  md:{read:'{n} слов',flash:'{n} слов, всё быстрее',which:'{n} слов',letters:'таблица {g}',test:'5 минут, как в первый раз'},
+  mt:{learn:'Знакомлюсь с буквами',sound:'Первый звук',build:'Собери слово',find:'Найди букву',read:'Прочитай и найди',flash:'Вспышка',which:'Чьё слово?',letters:'Буквы по порядку',test:'Проверка'},
+  md:{learn:'новые буквы: {x}',sound:'{n} картинок',build:'{n} слова',read:'{n} слов',flash:'{n} слов, всё быстрее',which:'{n} слов',letters:'таблица {g}',test:'5 минут, как в первый раз'},
   focus:'тренируем {x}',free:'Свободная игра',album:'Альбом наклеек',parentBtn:'Для взрослых',
   alLead:'За каждое занятие на пути — новая наклейка. Собери все двенадцать!',
   reward:'Новая наклейка!',rewardText:'Занятие {n} пройдено.',cont:'Дальше',toPlan:'К плану',
@@ -473,10 +501,14 @@ Object.assign(T.ru,{streak:'подряд',
   retest:'Пройти проверку заново',rebuild:'Пересобрать план',rebuilt:'План пересобран.',showRep:'Открыть отчёт о проверке',
   hist:'Последние занятия',noHist:'Пока пусто.',del:'Удалить профиль',delSure:'Удалить профиль «{n}»? Весь прогресс пропадёт.',delYes:'Да, удалить',
   how:'Как устроен план',
-  howText:'Проверка смотрит три вещи: какие слова ребёнок читает (короткие или длинные), как быстро узнаёт слово со вспышки и путает ли языки. Из этого собирается путь из 12 занятий: 10 обычных и 2 проверки. Больше времени получает язык, где ребёнку труднее, и язык, которого нет в школе. В каждом занятии 2–4 задания по 2–3 минуты. Буквы-двойники, на которых были ошибки, попадаются в словах чаще. После двух заданий подряд почти без ошибок уровень повышается сам. После проверки на шестом занятии вторая половина пути пересобирается. Занятие открывается раз в день, чтобы чтение стало привычкой.',
+  howText:'Проверка смотрит три вещи: какие слова ребёнок читает (короткие или длинные), как быстро узнаёт слово со вспышки и путает ли языки. Из этого собирается путь из 12 занятий: 10 обычных и 2 проверки. Больше времени получает язык, где ребёнку труднее, и язык, которого нет в школе. В каждом занятии 2–4 задания по 2–3 минуты. Буквы-двойники, на которых были ошибки, попадаются в словах чаще. После двух заданий подряд почти без ошибок уровень повышается сам. После проверки на шестом занятии вторая половина пути пересобирается. Занятие открывается раз в день, чтобы чтение стало привычкой. Если ребёнок пока не читает слова на каком-то языке, путь по нему начинается с букв: три новые буквы за занятие, «Первый звук» и «Собери слово». Когда все буквы пройдены, начинается чтение.',
   ok:['Верно!','Умница!','Точно!','Да!','Супер!']
 });
 Object.assign(T.ua,{streak:'поспіль',
+  qAbc:'Чи знає літери',abcOpts:['Майже не знає','Знає частину','Знає всі'],
+  mL:['Знайомлюся з літерами','Перший звук','Склади слово'],letters:'Літери',
+  askLearn:'Натисни на літеру, щоб послухати ще раз',askFind:'Послухай і знайди літеру',askSound:'З якої літери починається слово?',askBuild:'Склади слово',
+  nextL:'Далі',la:'Впізнає літери',
   wTitle:'Познайомимося',wLead:'Кілька запитань для дорослого. За відповідями й короткою перевіркою гра складе план із 12 занять.',
   qName:'Як звати дитину',qAge:'Вік',ages:['4–5','6–7','8–9','10+'],qLangs:'Якими мовами читає або вчиться читати',
   qSchool:'Мова школи чи садочка',qMin:'Скільки хвилин на день',mins:['5 хвилин','10 хвилин','15 хвилин'],
@@ -492,8 +524,8 @@ Object.assign(T.ua,{streak:'поспіль',
   todayK:'Завдань на сьогодні: {k}. Тисни на перше!',dayDone:'Ура, заняття пройдено! Наступне відкриється завтра.',
   nextReady:'Нове заняття вже чекає!',pathDone:'Увесь шлях пройдено! Дорослий може скласти новий план.',
   dayN:'Заняття {n} з {m}',testDay:'Перевірка',openNow:'Відкрити наступне зараз',startTest:'Пройти перевірку',
-  mt:{read:'Прочитай і знайди',flash:'Спалах',which:'Чиє слово?',letters:'Літери по черзі',test:'Перевірка'},
-  md:{read:'{n} слів',flash:'{n} слів, усе швидше',which:'{n} слів',letters:'таблиця {g}',test:'5 хвилин, як уперше'},
+  mt:{learn:'Знайомлюся з літерами',sound:'Перший звук',build:'Склади слово',find:'Знайди літеру',read:'Прочитай і знайди',flash:'Спалах',which:'Чиє слово?',letters:'Літери по черзі',test:'Перевірка'},
+  md:{learn:'нові літери: {x}',sound:'{n} картинок',build:'{n} слова',read:'{n} слів',flash:'{n} слів, усе швидше',which:'{n} слів',letters:'таблиця {g}',test:'5 хвилин, як уперше'},
   focus:'тренуємо {x}',free:'Вільна гра',album:'Альбом наліпок',parentBtn:'Для дорослих',
   alLead:'За кожне заняття на шляху — нова наліпка. Збери всі дванадцять!',
   reward:'Нова наліпка!',rewardText:'Заняття {n} пройдено.',cont:'Далі',toPlan:'До плану',
@@ -502,10 +534,14 @@ Object.assign(T.ua,{streak:'поспіль',
   retest:'Пройти перевірку знову',rebuild:'Скласти план заново',rebuilt:'План складено заново.',showRep:'Відкрити звіт про перевірку',
   hist:'Останні заняття',noHist:'Поки порожньо.',del:'Видалити профіль',delSure:'Видалити профіль «{n}»? Увесь прогрес зникне.',delYes:'Так, видалити',
   how:'Як влаштований план',
-  howText:'Перевірка дивиться на три речі: які слова дитина читає (короткі чи довгі), як швидко впізнає слово зі спалаху і чи плутає мови. З цього складається шлях із 12 занять: 10 звичайних і 2 перевірки. Більше часу отримує мова, де дитині важче, і мова, якої немає в школі. У кожному занятті 2–4 завдання по 2–3 хвилини. Літери-двійники, на яких були помилки, трапляються в словах частіше. Після двох завдань поспіль майже без помилок рівень підвищується сам. Після перевірки на шостому занятті друга половина шляху складається заново. Заняття відкривається раз на день, щоб читання стало звичкою.',
+  howText:'Перевірка дивиться на три речі: які слова дитина читає (короткі чи довгі), як швидко впізнає слово зі спалаху і чи плутає мови. З цього складається шлях із 12 занять: 10 звичайних і 2 перевірки. Більше часу отримує мова, де дитині важче, і мова, якої немає в школі. У кожному занятті 2–4 завдання по 2–3 хвилини. Літери-двійники, на яких були помилки, трапляються в словах частіше. Після двох завдань поспіль майже без помилок рівень підвищується сам. Після перевірки на шостому занятті друга половина шляху складається заново. Заняття відкривається раз на день, щоб читання стало звичкою. Якщо дитина поки не читає слова якоюсь мовою, шлях нею починається з літер: три нові літери за заняття, «Перший звук» і «Склади слово». Коли всі літери пройдено, починається читання.',
   ok:['Правильно!','Молодець!','Точно!','Так!','Супер!']
 });
 Object.assign(T.en,{streak:'in a row',
+  qAbc:'Knows the letters',abcOpts:['Hardly any','Some','All of them'],
+  mL:['Meet the letters','First sound','Build the word'],letters:'Letters',
+  askLearn:'Tap the letter to hear it again',askFind:'Listen and find the letter',askSound:'Which letter does the word start with?',askBuild:'Build the word',
+  nextL:'Next',la:'Recognises letters',
   wTitle:'Let’s get to know each other',wLead:'A few questions for the grown-up. From your answers and a short check, the game builds a plan of 12 sessions.',
   qName:'Child’s name',qAge:'Age',ages:['4–5','6–7','8–9','10+'],qLangs:'Languages they read or are learning to read',
   qSchool:'Language of school or nursery',qMin:'Minutes a day',mins:['5 minutes','10 minutes','15 minutes'],
@@ -521,8 +557,8 @@ Object.assign(T.en,{streak:'in a row',
   todayK:'Tasks for today: {k}. Tap the first one!',dayDone:'Hooray, session done! The next one opens tomorrow.',
   nextReady:'A new session is waiting!',pathDone:'You walked the whole path! A grown-up can build a new plan.',
   dayN:'Session {n} of {m}',testDay:'Check',openNow:'Open the next one now',startTest:'Take the check',
-  mt:{read:'Read and find',flash:'Flash',which:'Whose word?',letters:'Letters in order',test:'Check'},
-  md:{read:'{n} words',flash:'{n} words, faster and faster',which:'{n} words',letters:'{g} grid',test:'5 minutes, like the first time'},
+  mt:{learn:'Meet the letters',sound:'First sound',build:'Build the word',find:'Find the letter',read:'Read and find',flash:'Flash',which:'Whose word?',letters:'Letters in order',test:'Check'},
+  md:{learn:'new letters: {x}',sound:'{n} pictures',build:'{n} words',read:'{n} words',flash:'{n} words, faster and faster',which:'{n} words',letters:'{g} grid',test:'5 minutes, like the first time'},
   focus:'practising {x}',free:'Free play',album:'Sticker album',parentBtn:'For grown-ups',
   alLead:'Every session on the path gives a new sticker. Collect all twelve!',
   reward:'New sticker!',rewardText:'Session {n} done.',cont:'Next',toPlan:'To the plan',
@@ -531,7 +567,7 @@ Object.assign(T.en,{streak:'in a row',
   retest:'Take the check again',rebuild:'Rebuild the plan',rebuilt:'Plan rebuilt.',showRep:'Open the check report',
   hist:'Recent sessions',noHist:'Nothing yet.',del:'Delete profile',delSure:'Delete “{n}”? All progress will be lost.',delYes:'Yes, delete',
   how:'How the plan works',
-  howText:'The check looks at three things: which words the child can read (short or long), how fast they recognise a flashed word, and whether they mix up languages. From that it builds a path of 12 sessions: 10 regular ones and 2 checks. More time goes to the language the child finds hardest and to the one not used at school. Each session has 2–4 tasks of 2–3 minutes. Look-alike letters that caused mistakes show up in words more often. Two tasks in a row with almost no mistakes raise the level automatically. After the check in session 6, the second half of the path is rebuilt. One session opens per day, to turn reading into a habit.',
+  howText:'The check looks at three things: which words the child can read (short or long), how fast they recognise a flashed word, and whether they mix up languages. From that it builds a path of 12 sessions: 10 regular ones and 2 checks. More time goes to the language the child finds hardest and to the one not used at school. Each session has 2–4 tasks of 2–3 minutes. Look-alike letters that caused mistakes show up in words more often. Two tasks in a row with almost no mistakes raise the level automatically. After the check in session 6, the second half of the path is rebuilt. One session opens per day, to turn reading into a habit. If the child can’t read words in a language yet, that language starts with letters: three new letters per session, “First sound” and “Build the word”. Once all the letters are done, reading begins.',
   ok:['Right!','Well done!','Yes!','Spot on!','Super!']
 });
 
@@ -566,6 +602,7 @@ const store = {
 const S = { ui:store.get('ui','ru'), sound:store.get('sound',true) };
 let PROFILES = store.get('profiles',[]);
 let P = PROFILES.find(p=>p.id===store.get('cur',null)) || PROFILES[0] || null;
+PROFILES.forEach(p=>{ p.abc=p.abc||{en:0,ru:0,ua:0}; if(p.abcKnow==null) p.abcKnow=1; }); // profiles from before the letters track
 function save(){ store.set('profiles',PROFILES); store.set('cur',P?P.id:null); }
 const today = () => new Date().toLocaleDateString('en-CA');
 const lastTest = () => P && P.tests.length ? P.tests[P.tests.length-1] : null;
@@ -682,10 +719,10 @@ const langChip = l => ({l, html:`${heroImg(l)}${LANG[l].name}`});
 /* ---------- welcome: questionnaire for the grown-up ---------- */
 let W=null;
 function renderWelcome(){
-  W=W||{name:'',age:1,langs:['en','ru','ua'],school:'en',minutes:1,goal:0};
+  W=W||{name:'',age:1,langs:['en','ru','ua'],school:'en',minutes:1,goal:0,abc:1};
   go('welcome'); chrome();
   $('w-title').textContent=t('wTitle'); $('w-lead').textContent=t('wLead');
-  ['qName','qAge','qLangs','qSchool','qMin','qGoal'].forEach(k=>$('w-'+k).textContent=t(k));
+  ['qName','qAge','qLangs','qSchool','qAbc','qMin','qGoal'].forEach(k=>$('w-'+k).textContent=t(k));
   $('wName').value=W.name;
   chipRow($('wAge'),t('ages'),(_,i)=>W.age===i,(_,i)=>{W.age=i;renderWelcome()});
   chipRow($('wLangs'),['en','ru','ua'].map(langChip),it=>W.langs.includes(it.l),it=>{
@@ -693,6 +730,7 @@ function renderWelcome(){
     if(!W.langs.includes(W.school))W.school=W.langs[0]; renderWelcome();},it=>it.l);
   chipRow($('wSchool'),W.langs.map(langChip),it=>W.school===it.l,it=>{W.school=it.l;renderWelcome()},it=>it.l);
   chipRow($('wMin'),t('mins'),(_,i)=>W.minutes===i,(_,i)=>{W.minutes=i;renderWelcome()});
+  chipRow($('wAbc'),t('abcOpts'),(_,i)=>W.abc===i,(_,i)=>{W.abc=i;renderWelcome()});
   chipRow($('wGoal'),t('goals'),(_,i)=>W.goal===i,(_,i)=>{W.goal=i;renderWelcome()});
   $('w-start').textContent=t('wStart'); $('w-cancel').textContent=t('cancel'); $('w-cancel').hidden=!PROFILES.length;
   $('wWarn').hidden=true;
@@ -704,7 +742,7 @@ $('wForm').addEventListener('submit',e=>{
   const name=$('wName').value.trim();
   if(!name){ $('wWarn').textContent=t('needName'); $('wWarn').hidden=false; $('wName').focus(); return; }
   P={id:'p'+Date.now(),name,age:W.age,langs:W.langs.slice(),school:W.school,minutes:W.minutes,goal:W.goal,caps:W.age===0,
-     levels:{en:1,ru:1,ua:1},stars:0,stickers:[],tests:[],plan:null,hist:[],lvStreak:{},pendingReward:null};
+     abcKnow:W.abc,abc:{en:0,ru:0,ua:0},levels:{en:1,ru:1,ua:1},stars:0,stickers:[],tests:[],plan:null,hist:[],lvStreak:{},pendingReward:null};
   PROFILES.push(P); save(); W=null;
   startTest();
 });
@@ -729,10 +767,40 @@ function whichTasks(langs,n){
     shuffle(ws).slice(0,per).forEach(w=>items.push({t:'which',w,l,langs})); });
   return shuffle(items).slice(0,n);
 }
+/* letters track */
+const ORDER = l => [...ANCH.order[l]];
+const learned = l => { const o=ORDER(l); return o.slice(0,Math.max(P.abc[l],6)); };
+const nextLetters = l => { const o=ORDER(l), i=P.abc[l]; return i<o.length?o.slice(i,i+3):shuffle(o).slice(0,3); };
+const firstCh = w => w.replace(/^[^\p{L}]+/u,'')[0].toUpperCase();
+function letterOpts(l,ch){
+  // the right letter, one more from the same alphabet, one that only exists in another alphabet
+  const own=shuffle(learned(l).concat(ORDER(l).slice(0,12)).filter(c=>c!==ch))[0];
+  const foreign=shuffle(['en','ru','ua'].filter(x=>x!==l).flatMap(x=>[...ABC[x]]).filter(c=>!ABC[l].includes(c)&&!HOMO.has(c)))[0];
+  return shuffle([ch,own,foreign]);
+}
+function learnTasks(l,letters){
+  const known=learned(l).filter(c=>!letters.includes(c)), out=letters.map(ch=>({t:'card',l,ch}));
+  const quiz=shuffle(letters.concat(letters,shuffle(known).slice(0,2)));
+  return out.concat(quiz.map(ch=>({t:'find',l,ch})));
+}
+function soundTasks(l,n){
+  const set=learned(l), pool=WORDS.filter(x=>/^\p{L}/u.test(x[l])&&!/[ -]/.test(x[l]));
+  const good=shuffle(pool.filter(x=>set.includes(firstCh(x[l]))));
+  return good.concat(shuffle(pool)).filter((x,i,a)=>a.indexOf(x)===i).slice(0,n).map(item=>({t:'sound',l,item}));
+}
+function buildTasks(l,n){
+  const set=learned(l), max=P.levels[l]===0?4:5;
+  const pool=WORDS.filter(x=>x[l].length<=max&&!/[ -]/.test(x[l]));
+  const good=shuffle(pool.filter(x=>[...x[l].toUpperCase()].every(c=>c==="'"||set.includes(c))));
+  return good.concat(shuffle(pool).sort((a,b)=>a[l].length-b[l].length)).filter((x,i,a)=>a.indexOf(x)===i).slice(0,n)
+    .sort((a,b)=>a[l].length-b[l].length).map(item=>({t:'build',l,item}));
+}
 function buildTest(){
   const tasks=[{t:'intro',kind:'start'}];
   P.langs.forEach(l=>{
     tasks.push({t:'intro',l});
+    shuffle(ORDER(l).slice(0,12)).slice(0,5).forEach(ch=>tasks.push({t:'find',l,ch,test:true}));
+    if(P.abcKnow===0) return;
     const used=new Set();
     [[1,3],[4,4],[5,5],[6,6],[7,8],[9,99]].forEach(([a,b])=>{
       let c=WORDS.filter(x=>!used.has(x)&&x[l].length>=a&&x[l].length<=b); if(!c.length) c=WORDS.filter(x=>!used.has(x));
@@ -741,14 +809,14 @@ function buildTest(){
     shuffle(WORDS.filter(x=>!used.has(x)&&x[l].length>=4&&x[l].length<=6)).slice(0,4)
       .forEach(it=>tasks.push({t:'pic',l,item:it,opts:3,traps:1,flash:true,test:true}));
   });
-  if(P.langs.length>1){ tasks.push({t:'intro',which:true}); whichTasks(P.langs,6).forEach(x=>tasks.push(x)); }
+  if(P.langs.length>1&&P.abcKnow>0){ tasks.push({t:'intro',which:true}); whichTasks(P.langs,6).forEach(x=>tasks.push(x)); }
   return tasks;
 }
 
 /* ---------- the runner: one engine for free play, missions and the check ---------- */
 let G=null;
 function run(tasks,ctx){
-  G={tasks,ctx,i:0,log:[],streak:0,ms:{},best:{},told:{},done:0,total:tasks.filter(x=>x.t!=='intro').length};
+  G={tasks,ctx,i:0,log:[],streak:0,ms:{},best:{},told:{},done:0,total:tasks.filter(x=>x.t!=='intro'&&x.t!=='card').length};
   go('play'); chrome(); next();
 }
 function setWho(l,state){
@@ -771,7 +839,92 @@ function next(){
     G.told[k.l+k.flash]=1; const d=voice([line(k.l,k.flash?'flash':'read')]);
     if(k.flash&&d){ $('stage').className='stage '+k.l; setWho(k.l); $('ask').textContent=t('flash'); $('word').textContent=''; $('opts').innerHTML=''; return later(()=>renderPic(k),d+200); }
   }
+  const first=G.ctx.kind!=='test'&&!G.told[k.t]; G.told[k.t]=1;
+  if(k.t==='card') return renderCard(k,first);
+  if(k.t==='find') return renderFind(k,first&&G.ctx.type!=='learn');
+  if(k.t==='sound') return renderSound(k,first);
+  if(k.t==='build') return renderBuild(k,first);
   if(k.t==='pic') renderPic(k); else renderWhich(k);
+}
+function anchorHtml(l,ch){
+  const [w,em]=ANCH[l][ch], up=ch.toUpperCase();
+  const word=[...show(w)].map(c=>c.toUpperCase()===up?`<b>${c}</b>`:c).join('');
+  return `<span class="anc"><span class="em">${em}</span><span class="aw">${word}</span></span>`;
+}
+const L1 = ch => P.caps?ch:ch.toLowerCase();
+function renderCard(k,first){
+  const l=k.l, ch=k.ch;
+  $('stage').className='stage '+l; setWho(l); $('ask').textContent=t('askLearn'); $('opts').style.visibility='visible';
+  $('word').innerHTML=`<div class="lcard"><button class="bigl" id="lplay">${ch}${ch.toLowerCase()!==ch?ch.toLowerCase():''}</button>${anchorHtml(l,ch)}</div>`;
+  $('opts').style.gridTemplateColumns='minmax(0,1fr)';
+  $('opts').innerHTML=`<button class="btn" id="cardNext">${t('nextL')} →</button>`;
+  voice(first?[line(l,'learn'),[l,'a:'+ch]]:[[l,'a:'+ch]]);
+  $('lplay').onclick=()=>{ sfx.pop(); voice([[l,'a:'+ch]]); };
+  $('cardNext').onclick=()=>{ sfx.pop(); G.i++; next(); };
+}
+function letterChoice(k,opts,onDone){
+  $('opts').style.visibility='visible';
+  $('opts').style.gridTemplateColumns=`repeat(${opts.length},minmax(0,1fr))`;
+  $('opts').innerHTML=opts.map(c=>`<button class="opt letter" data-c="${c}">${L1(c)}</button>`).join('');
+  let locked=false;
+  const done=(c,b)=>{ if(locked)return; locked=true; onDone(c,b); };
+  $('opts').onclick=e=>{ const b=e.target.closest('.opt'); if(b) done(b.dataset.c,b); };
+  $('skipBtn').onclick=()=>done(null,null);
+}
+function renderFind(k,first){
+  const l=k.l, ch=k.ch;
+  $('stage').className='stage '+l; setWho(l); $('ask').textContent=t('askFind');
+  $('word').innerHTML=`<button class="replay" id="lplay" aria-label="replay">🔊</button>`;
+  const say=()=>voice([[l,'a:'+ch]]);
+  voice(first?[line(l,'find'),[l,'a:'+ch]]:[[l,'a:'+ch]]); $('lplay').onclick=()=>{ sfx.pop(); say(); };
+  letterChoice(k,letterOpts(l,ch),(c,b)=>{
+    const ok=c===ch;
+    if(ok) b.classList.add('right','pop');
+    else { if(b) b.classList.add('wrong','shake'); $('opts').querySelector(`[data-c="${ch}"]`).classList.add('right'); }
+    $('word').innerHTML=`<div class="lcard"><span class="bigl">${L1(ch)}</span>${anchorHtml(l,ch)}</div>`;
+    const d=voice(ok?(Math.random()<.5?[line(l,'ok1','ok2','ok3','ok4')]:[]):[line(l,'bad1','bad2'),[l,'a:'+ch]]);
+    answered(ok,{kind:'find',l,ch,ok},l,Math.max(ok?1300:2400,d+250));
+  });
+}
+function renderSound(k,first){
+  const l=k.l, w=k.item[l], ch=firstCh(w);
+  $('stage').className='stage '+l; setWho(l); $('ask').textContent=t('askSound');
+  $('word').innerHTML=`<div class="pic"><span class="em">${k.item.e}</span><button class="replay" id="lplay" aria-label="replay">🔊</button></div>`;
+  voice(first?[line(l,'sound'),[l,'w:'+w]]:[[l,'w:'+w]]); $('lplay').onclick=()=>{ sfx.pop(); voice([[l,'w:'+w]]); };
+  letterChoice(k,letterOpts(l,ch),(c,b)=>{
+    const ok=c===ch;
+    if(ok) b.classList.add('right','pop');
+    else { if(b) b.classList.add('wrong','shake'); $('opts').querySelector(`[data-c="${ch}"]`).classList.add('right'); }
+    $('word').innerHTML=`<div class="pic"><span class="em">${k.item.e}</span></div><div class="word" style="font-size:2.6rem">${[...show(w)].map((c,i)=>i===[...w].findIndex(x=>/\p{L}/u.test(x))?`<mark class="${l}">${c}</mark>`:c).join('')}</div>`;
+    const d=voice(ok?[[l,'w:'+w],...(Math.random()<.5?[line(l,'ok1','ok2','ok3','ok4')]:[])]:[line(l,'bad1','bad2'),[l,'w:'+w],[l,'a:'+ch]]);
+    answered(ok,{kind:'sound',l,ch,word:w,ok},l,Math.max(ok?1500:2600,d+250));
+  });
+}
+function renderBuild(k,first){
+  const l=k.l, w=k.item[l], letters=[...show(w)];
+  $('stage').className='stage '+l; setWho(l); $('ask').textContent=t('askBuild');
+  $('word').innerHTML=`<div class="pic"><span class="em">${k.item.e}</span><button class="replay" id="lplay" aria-label="replay">🔊</button></div>
+    <div class="lslots">${letters.map(c=>`<span class="lslot">${c==="'"?"'":''}</span>`).join('')}</div>`;
+  voice(first?[line(l,'build'),[l,'w:'+w]]:[[l,'w:'+w]]); $('lplay').onclick=()=>{ sfx.pop(); voice([[l,'w:'+w]]); };
+  const need=letters.map((c,i)=>({c,i})).filter(x=>x.c!=="'");
+  const extra=shuffle(learned(l).map(L1).filter(c=>!letters.includes(c)))[0];
+  const tiles=shuffle(need.map(x=>x.c).concat(extra?[extra]:[]));
+  $('opts').style.visibility='visible'; $('opts').style.gridTemplateColumns='minmax(0,1fr)';
+  $('opts').innerHTML=`<div class="ltiles">${tiles.map((c,i)=>`<button class="ltile" data-i="${i}">${c}</button>`).join('')}</div>`;
+  let pos=0, miss=0, locked=false;
+  const finish=ok=>{ if(locked)return; locked=true;
+    const d=voice(ok?[[l,'w:'+w],line(l,'ok1','ok2','ok3','ok4')]:[line(l,'bad2'),[l,'w:'+w]]);
+    if(!ok){ const sl=$('word').querySelectorAll('.lslot'); letters.forEach((c,i)=>sl[i].textContent=c); }
+    answered(ok,{kind:'build',l,word:w,ok},l,Math.max(1600,d+300)); };
+  $('opts').onclick=e=>{
+    const b=e.target.closest('.ltile'); if(!b||b.disabled||locked)return;
+    if(b.textContent===need[pos].c){
+      const sl=$('word').querySelectorAll('.lslot')[need[pos].i]; sl.textContent=b.textContent; sl.classList.add('on');
+      b.disabled=true; pos++; sfx.pop();
+      if(pos>=need.length) finish(miss<=1);
+    } else { miss++; sfx.bad(); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); if(miss>=4) finish(false); }
+  };
+  $('skipBtn').onclick=()=>finish(false);
 }
 function renderIntro(k){
   const l=k.l||(k.which?P.langs[1]:P.langs[0]);
@@ -909,7 +1062,8 @@ function finishRun(){
   const scored=G.log, right=scored.filter(r=>r.ok).length, acc=scored.length?right/scored.length:0;
   if(G.ctx.kind==='test'){
     const res=computeTest(scored), prevTest=lastTest();
-    P.tests.push(res); P.langs.forEach(l=>{ if(res.langs[l]) P.levels[l]=res.langs[l].lv; });
+    P.tests.push(res); P.langs.forEach(l=>{ const r=res.langs[l]; if(!r) return; P.levels[l]=r.lv;
+      if(r.lv===0) P.abc[l]=Math.max(P.abc[l]||0, r.la>=80?12:r.la>=40?6:0); });
     if(G.ctx.step!=null){ P.plan.steps[G.ctx.step].done[G.ctx.mi]=true; stepFinished(G.ctx.step); buildPlan(G.ctx.step+1); }
     else buildPlan(P.plan?curStep():0);
     logHist('test',null,acc,null); addStars(3); save();
@@ -946,14 +1100,16 @@ function computeTest(log){
     const acc=rd.length?ok.length/rd.length:0, maxLen=Math.max(0,...ok.map(r=>r.word.length));
     const avg=ok.length?ok.reduce((s,r)=>s+r.ms,0)/ok.length:99999;
     const flOk=fl.filter(r=>r.ok), flashMs=flOk.length?Math.min(...flOk.map(r=>r.shown)):null;
+    const fd=log.filter(r=>r.kind==='find'&&r.l===l), la=fd.length?fd.filter(r=>r.ok).length/fd.length:0;
     let lv=1;
+    if(!rd.length||acc<.34) lv=0; // can't read words yet: start with letters
     if(acc>=.5&&maxLen>=5&&avg<6000) lv=2;
     if(acc>=.67&&maxLen>=6&&avg<4000&&flashMs&&flashMs<=1100) lv=3;
     if(acc>=.83&&maxLen>=7&&flashMs&&flashMs<=550) lv=4;
-    res.langs[l]={acc:Math.round(acc*100),maxLen,flashMs,lv};
+    res.langs[l]={acc:Math.round(acc*100),la:Math.round(la*100),read:rd.length>0,maxLen,flashMs,lv};
     // a look-alike letter counts only if most words with it went wrong (at least twice); top two per language
     const seen={}, bad={};
-    log.filter(r=>r.l===l&&r.kind!=='which').forEach(r=>TWINS.forEach(tw=>{
+    log.filter(r=>r.l===l&&(r.kind==='read'||r.kind==='flash')).forEach(r=>TWINS.forEach(tw=>{
       if(tw[l]&&r.word.toLowerCase().includes(tw[l])){ seen[tw.id]=(seen[tw.id]||0)+1; if(!r.ok) bad[tw.id]=(bad[tw.id]||0)+1; } }));
     res.twins[l]={};
     Object.keys(bad).filter(id=>bad[id]>=2&&bad[id]/seen[id]>=.5).sort((a,b)=>bad[b]/seen[b]-bad[a]/seen[a]).slice(0,2)
@@ -979,12 +1135,20 @@ function buildPlan(keepBefore){
     if(old&&keepBefore&&s<keepBefore&&old.steps[s]){ steps.push(old.steps[s]); continue; }
     if(TEST_STEPS.includes(s)){ steps.push({test:true,missions:[{type:'test'}],done:[false]}); continue; }
     const others=ls.filter(x=>x!==p).sort((a,b)=>need[b]-need[a]), q=others.length?others[s%others.length]:null, lp=P.levels[p];
+    const readM = l => P.levels[l]===0?{type:'sound',l}:{type:'read',l,focus:focusFor(l)};
+    const readers=ls.filter(l=>P.levels[l]>0);
+    if(lp===0){ // learning letters: new letters, first sound, building words, letter table
+      const c0=[{type:'learn',l:p},{type:'sound',l:p},P.abc[p]>=6?{type:'build',l:p}:{type:'letters',l:p},{type:'letters',l:p}];
+      if(q) c0.push(readM(q));
+      const m0=[]; c0.forEach(c=>{ if(m0.length<k&&!m0.some(m=>m.type===c.type&&m.l===c.l)) m0.push(c); });
+      steps.push({missions:m0,done:m0.map(()=>false)}); continue;
+    }
     const cand=[{type:'read',l:p,focus:focusFor(p)}];
     cand.push(lp>=2||P.goal===1?{type:'flash',l:p}:{type:'letters',l:p});
-    if(ls.length>1&&(P.goal===2||conf.length>1||s%2===0)) cand.push({type:'which',langs:conf.length>1?conf:ls});
-    else cand.push(q?{type:'read',l:q,focus:focusFor(q)}:{type:'letters',l:p});
-    cand.push(lp<=2?{type:'letters',l:p}:(q?{type:'flash',l:q}:{type:'read',l:p}));
-    if(q) cand.push({type:'read',l:q,focus:focusFor(q)});
+    if(readers.length>1&&(P.goal===2||conf.length>1||s%2===0)) cand.push({type:'which',langs:conf.filter(l=>P.levels[l]>0).length>1?conf.filter(l=>P.levels[l]>0):readers});
+    else cand.push(q?readM(q):{type:'letters',l:p});
+    cand.push(lp<=2?{type:'letters',l:p}:(q&&P.levels[q]>0?{type:'flash',l:q}:{type:'read',l:p}));
+    if(q) cand.push(readM(q));
     const ms=[]; cand.forEach(c=>{ if(ms.length<k&&!ms.some(m=>m.type===c.type&&m.l===c.l)) ms.push(c); });
     ms.sort((a,b)=>(b.type==='letters')-(a.type==='letters')); // warm-up first
     steps.push({missions:ms,done:ms.map(()=>false)});
@@ -1010,7 +1174,11 @@ function stepFinished(si){
 function completeMission(ctx,acc,l){
   if(ctx.step==null)return;
   P.plan.steps[ctx.step].done[ctx.mi]=true; stepFinished(ctx.step);
-  if(l&&ctx.type!=='letters'){ // two near-perfect tasks in a row raise the level, a hard one lowers it
+  if(ctx.type==='learn'&&acc>=.5){
+    P.abc[l]=Math.min(ORDER(l).length,(P.abc[l]||0)+3);
+    if(P.abc[l]>=ORDER(l).length&&P.levels[l]===0){ P.levels[l]=1; toast(fmt(t('levelUp'),{lang:LANG[l].name})); lvUp=l; buildPlan(ctx.step+1); }
+  }
+  if(l&&['read','flash','which'].includes(ctx.type)){ // two near-perfect tasks in a row raise the level, a hard one lowers it
     P.lvStreak[l]=acc>=.9?(P.lvStreak[l]||0)+1:0;
     if(P.lvStreak[l]>=2&&P.levels[l]<4){ P.levels[l]++; P.lvStreak[l]=0; toast(fmt(t('levelUp'),{lang:LANG[l].name})); lvUp=l; }
     else if(acc<.5&&P.levels[l]>1) P.levels[l]--;
@@ -1020,6 +1188,9 @@ function completeMission(ctx,acc,l){
 function launchMission(si,mi){
   const m=P.plan.steps[si].missions[mi], ctx={kind:m.type==='test'?'test':'mission',step:si,mi,type:m.type,l:m.l};
   if(m.type==='letters') return startSchulte(m.l,ctx);
+  if(m.type==='learn') return run(learnTasks(m.l,nextLetters(m.l)),ctx);
+  if(m.type==='sound') return run(soundTasks(m.l,8),ctx);
+  if(m.type==='build') return run(buildTasks(m.l,5),ctx);
   if(m.type==='test') return run(buildTest(),ctx);
   if(m.type==='which') return run(whichTasks(m.langs||P.langs,8),ctx);
   run(picTasks(m.l,8,m.type==='flash',m.focus),ctx);
@@ -1035,11 +1206,11 @@ function smoothPath(pts){
   }
   return d;
 }
-const MI = {read:{en:'Aa',ru:'Бб',ua:'Її'},flash:'⚡',which:'?',letters:{en:'ABC',ru:'АБВ',ua:'АБВ'},test:'★'};
+const MI = {learn:{en:'Aa',ru:'Аа',ua:'Аа'},sound:'🔊',build:'🧩',read:{en:'Cat',ru:'Кот',ua:'Кіт'},flash:'⚡',which:'?',letters:{en:'ABC',ru:'АБВ',ua:'АБВ'},test:'★'};
 function missionHtml(m,done,isNext,disabled){
   const cls=m.l||'mix', icon=typeof MI[m.type]==='string'?MI[m.type]:MI[m.type][m.l];
   const g=m.l?LEVEL[P.levels[m.l]].grid:3, gs=g?`${g}×${g}`:(m.l?ABC[m.l].length:'');
-  let desc=fmt(t('md')[m.type],{n:8,g:gs});
+  let desc=fmt(t('md')[m.type],{n:m.type==='build'?5:8,g:gs,x:m.type==='learn'?nextLetters(m.l).join(' '):''});
   if(m.l) desc=LANG[m.l].name+' · '+desc;
   if(m.focus&&m.focus.length) desc+=' · '+fmt(t('focus'),{x:m.focus.map(id=>TWINS.find(x=>x.id===id).show).join(', ')});
   return `<button class="mission ${done?'done':''} ${isNext?'next':''}" ${disabled?'disabled':''}>
@@ -1090,8 +1261,9 @@ function renderHome(){
     if(wait){ $('openNow').hidden=false; $('openNow').textContent=t('openNow'); $('openNow').onclick=()=>{ P.plan.unlock=cur; save(); renderHome(); }; }
   }
   $('t-album').textContent=t('album'); $('t-parentBtn').textContent=t('parentBtn'); $('t-free').textContent=t('free');
-  const icons=['<b>к</b><b>і</b><b>т</b>','<b>⚡</b>','<b>ы</b><b>?</b><b>ї</b>','<b>А</b><b>Б</b><b>В</b>'];
-  $('modeList').innerHTML=t('m').map((m,i)=>`<button class="mode" data-mode="${i}"><span class="ico">${icons[i]}</span><h3>${m[0]}</h3></button>`).join('');
+  const icons=['<b>к</b><b>і</b><b>т</b>','<b>⚡</b>','<b>ы</b><b>?</b><b>ї</b>','<b>А</b><b>Б</b><b>В</b>','<b>A</b><b>a</b>','<b>🔊</b>','<b>🧩</b>'];
+  const names=t('mL').concat(t('m').map(m=>m[0])), ids=[4,5,6,0,1,2,3];
+  $('modeList').innerHTML=ids.map((id,i)=>`<button class="mode" data-mode="${id}"><span class="ico">${icons[id]}</span><h3>${names[i]}</h3></button>`).join('');
   if(P.pendingReward!=null) later(showReward,500);
 }
 $('modeList').addEventListener('click',e=>{const b=e.target.closest('[data-mode]');if(!b)return;const m=+b.dataset.mode; sfx.pop();
@@ -1102,9 +1274,12 @@ $('modeList').addEventListener('click',e=>{const b=e.target.closest('[data-mode]
   $('doorList').onclick=e=>{const d=e.target.closest('[data-door]');if(d){sfx.pop();startFree(m,d.dataset.door)}};
 });
 function startFree(m,l){
-  const ctx={kind:'free',l,type:['read','flash','which','letters'][m]};
+  const ctx={kind:'free',l,type:['read','flash','which','letters','learn','sound','build'][m]};
   ctx.replay=()=>startFree(m,l);
   if(m===3) return startSchulte(l,ctx);
+  if(m===4) return run(learnTasks(l,nextLetters(l)),ctx);
+  if(m===5) return run(soundTasks(l,8),ctx);
+  if(m===6) return run(buildTasks(l,5),ctx);
   run(picTasks(l,10,m===1),ctx);
 }
 function showReward(){
@@ -1134,9 +1309,10 @@ function renderReport(res,prevTest){
   $('repCards').innerHTML=Object.entries(res.langs).map(([l,r])=>{
     const p=repPrev&&repPrev.langs[l];
     return `<div class="rcard ${l}"><h3>${heroImg(l)}${LANG[l].name}</h3>
-      <div class="kv"><span>${t('acc')}</span><b>${r.acc}%</b></div><div class="meter"><i style="width:${r.acc}%;background:var(--${l})"></i></div>
-      <div class="kv"><span>${t('fastest')}</span><b>${r.flashMs?r.flashMs+' '+t('ms'):t('noFlash')}</b></div>
-      <div class="kv"><span>${t('lvl')}</span><b>${t('lv')[r.lv-1]}</b></div>
+      ${r.la!=null?`<div class="kv"><span>${t('la')}</span><b>${r.la}%</b></div>`:''}
+      ${r.read===false?'':`<div class="kv"><span>${t('acc')}</span><b>${r.acc}%</b></div>`}<div class="meter"><i style="width:${r.acc}%;background:var(--${l})"></i></div>
+      ${r.read===false?'':`<div class="kv"><span>${t('fastest')}</span><b>${r.flashMs?r.flashMs+' '+t('ms'):t('noFlash')}</b></div>`}
+      <div class="kv"><span>${t('lvl')}</span><b>${t('lv')[r.lv]}</b></div>
       ${p?`<div class="kv"><span>${t('prev')}</span><b>${p.acc}% · ${p.flashMs?p.flashMs+' '+t('ms'):'—'}</b></div>`:''}</div>`;
   }).join('');
   const conf=Object.entries(res.confuse);
@@ -1170,7 +1346,7 @@ function renderParent(){
     if(!P.langs.includes(P.school))P.school=P.langs[0]; changed(); },it=>it.l);
   chipRow($('paSchool'),P.langs.map(langChip),it=>P.school===it.l,it=>{P.school=it.l;changed()},it=>it.l);
   $('paLevels').innerHTML=P.langs.map(l=>`<div class="lvrow"><span class="name">${heroImg(l)}${LANG[l].name}</span>
-    <button class="step" data-l="${l}" data-d="-1" ${P.levels[l]<=1?'disabled':''} aria-label="−">−</button><span class="val">${t('lv')[P.levels[l]-1]}</span>
+    <button class="step" data-l="${l}" data-d="-1" ${P.levels[l]<=0?'disabled':''} aria-label="−">−</button><span class="val">${t('lv')[P.levels[l]]}</span>
     <button class="step" data-l="${l}" data-d="1" ${P.levels[l]>=4?'disabled':''} aria-label="+">+</button></div>`).join('');
   $('paLevels').onclick=e=>{const b=e.target.closest('[data-d]'); if(!b)return; P.levels[b.dataset.l]+= +b.dataset.d; changed(); };
   chipRow($('paMin'),t('mins'),(_,i)=>P.minutes===i,(_,i)=>{P.minutes=i;changed()});

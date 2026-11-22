@@ -18,7 +18,11 @@
   "sticker": "A new sticker for your album!",
   "levelup": "Level up! You're reading better and better!",
   "stars3": "Fantastic! Three stars!",
-  "finish": "Good job! Let's keep practising."
+  "finish": "Good job! Let's keep practising.",
+  "learn": "Let's meet some new letters!",
+  "find": "Listen and find the letter.",
+  "sound": "Which letter does this word start with?",
+  "build": "Make the word from the letters."
  },
  "ru": {
   "hello": "Привет! Я лис Рыжик. Давай читать вместе!",
@@ -39,7 +43,11 @@
   "sticker": "Новая наклейка в твой альбом!",
   "levelup": "Новый уровень! Ты читаешь всё лучше!",
   "stars3": "Потрясающе! Три звезды!",
-  "finish": "Хорошая работа! Потренируемся ещё."
+  "finish": "Хорошая работа! Потренируемся ещё.",
+  "learn": "Давай познакомимся с новыми буквами!",
+  "find": "Послушай и найди букву.",
+  "sound": "С какой буквы начинается это слово?",
+  "build": "Собери слово из букв."
  },
  "ua": {
   "hello": "Привіт! Я Соняшник Сонько. Давай читати разом!",
@@ -60,6 +68,10 @@
   "sticker": "Нова наліпка у твій альбом!",
   "levelup": "Новий рівень! Ти читаєш дедалі краще!",
   "stars3": "Чудово! Три зірки!",
-  "finish": "Гарна робота! Потренуємося ще."
+  "finish": "Гарна робота! Потренуємося ще.",
+  "learn": "Давай познайомимося з новими літерами!",
+  "find": "Послухай і знайди літеру.",
+  "sound": "З якої літери починається це слово?",
+  "build": "Склади слово з літер."
  }
 }

@@ -12,6 +12,7 @@ FF = "/opt/homebrew/opt/ffmpeg-full/bin/"
 SR = 24000
 reqs = json.load(open(src / "reqs.json")); keys = reqs["keys"]
 chunks = json.load(open(src / "chunks.json"))
+achunks = json.load(open(src / "achunks.json"))  # letters: "Буква Б, как банан." — comma pause inside, so a longer gap splits them
 lines = json.load(open(src / "lines.json"))  # a recorded line that is no longer listed here is left out
 
 def key_of(tag):
@@ -42,6 +43,20 @@ def speech_runs(x, gap=0.35):
     runs = [(a, b) for a, b in runs if (b - a) * hop / SR > .08]  # drop clicks
     return [(max(0, a * hop - int(.04 * SR)), min(len(x), (b + 1) * hop + int(.06 * SR))) for a, b in runs]
 
+def split_n(x, n):
+    """Cut a take into exactly n items at its n-1 longest pauses; None if those pauses are not clearly longer than the rest."""
+    runs = speech_runs(x, gap=.12)
+    if len(runs) < n: return None
+    gaps = sorted(range(len(runs) - 1), key=lambda i: runs[i + 1][0] - runs[i][1], reverse=True)
+    cut = sorted(gaps[:n - 1]); g = lambda i: (runs[i + 1][0] - runs[i][1]) / SR
+    if n > 1 and (g(gaps[n - 2]) < .4 or (len(gaps) >= n and g(gaps[n - 1]) > g(gaps[n - 2]) * .8)):
+        plain = speech_runs(x)  # fall back to a plain split on pauses longer than 0.35 s
+        return plain if len(plain) == n else None
+    out, start = [], 0
+    for i in cut + [len(runs) - 1]:
+        out.append((runs[start][0], runs[i][1])); start = i + 1
+    return out
+
 clips = {l: [] for l in ("en", "ru", "ua")}
 bad = []
 for f in sorted(raw.glob("*.mp3")):
@@ -49,10 +64,16 @@ for f in sorted(raw.glob("*.mp3")):
     x = pcm(f)
     if kind == "w":
         words = chunks[l][int(rest)]
-        runs = speech_runs(x)
-        if len(runs) != len(words):
-            bad.append(f"{k}: {len(runs)} pieces for {len(words)} words"); continue
+        runs = split_n(x, len(words))
+        if not runs:
+            bad.append(f"{k}: pauses unclear"); continue
         clips[l] += [("w:" + w, x[a:b]) for w, (a, b) in zip(words, runs)]
+    elif kind == "a":
+        letters = achunks[l][int(rest)]
+        runs = split_n(x, len(letters))
+        if not runs:
+            bad.append(f"{k}: pauses unclear"); continue
+        clips[l] += [("a:" + c, x[a:b]) for c, (a, b) in zip(letters, runs)]
     else:
         if rest not in lines[l]: continue
         runs = speech_runs(x, gap=10)
