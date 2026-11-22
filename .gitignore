@@ -1,0 +1,4 @@
+# Higgsfield originals (big); job ids and links to them are kept in jobs.json / urls.txt
+art-src/*.png
+voice-src/raw/
+.DS_Store
