@@ -12,6 +12,7 @@ FF = "/opt/homebrew/opt/ffmpeg-full/bin/"
 SR = 24000
 reqs = json.load(open(src / "reqs.json")); keys = reqs["keys"]
 chunks = json.load(open(src / "chunks.json"))
+lines = json.load(open(src / "lines.json"))  # a recorded line that is no longer listed here is left out
 
 def key_of(tag):
     return tag if tag.startswith("w-") else keys[int(tag)]
@@ -53,6 +54,7 @@ for f in sorted(raw.glob("*.mp3")):
             bad.append(f"{k}: {len(runs)} pieces for {len(words)} words"); continue
         clips[l] += [("w:" + w, x[a:b]) for w, (a, b) in zip(words, runs)]
     else:
+        if rest not in lines[l]: continue
         runs = speech_runs(x, gap=10)
         a, b = runs[0][0], runs[-1][1]
         clips[l].append(("l:" + rest, x[a:b]))

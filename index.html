@@ -447,7 +447,7 @@ const T = {
 };
 
 /* ---------- extra UI text: questionnaire, test, plan, rewards ---------- */
-Object.assign(T.ru,{streak:'Серия',
+Object.assign(T.ru,{streak:'подряд',
   wTitle:'Давайте познакомимся',wLead:'Несколько вопросов для взрослого. По ответам и короткой проверке игра соберёт план из 12 занятий.',
   qName:'Как зовут ребёнка',qAge:'Возраст',ages:['4–5','6–7','8–9','10+'],qLangs:'На каких языках читает или учится читать',
   qSchool:'Язык школы или садика',qMin:'Сколько минут в день',mins:['5 минут','10 минут','15 минут'],
@@ -476,7 +476,7 @@ Object.assign(T.ru,{streak:'Серия',
   howText:'Проверка смотрит три вещи: какие слова ребёнок читает (короткие или длинные), как быстро узнаёт слово со вспышки и путает ли языки. Из этого собирается путь из 12 занятий: 10 обычных и 2 проверки. Больше времени получает язык, где ребёнку труднее, и язык, которого нет в школе. В каждом занятии 2–4 задания по 2–3 минуты. Буквы-двойники, на которых были ошибки, попадаются в словах чаще. После двух заданий подряд почти без ошибок уровень повышается сам. После проверки на шестом занятии вторая половина пути пересобирается. Занятие открывается раз в день, чтобы чтение стало привычкой.',
   ok:['Верно!','Умница!','Точно!','Да!','Супер!']
 });
-Object.assign(T.ua,{streak:'Серія',
+Object.assign(T.ua,{streak:'поспіль',
   wTitle:'Познайомимося',wLead:'Кілька запитань для дорослого. За відповідями й короткою перевіркою гра складе план із 12 занять.',
   qName:'Як звати дитину',qAge:'Вік',ages:['4–5','6–7','8–9','10+'],qLangs:'Якими мовами читає або вчиться читати',
   qSchool:'Мова школи чи садочка',qMin:'Скільки хвилин на день',mins:['5 хвилин','10 хвилин','15 хвилин'],
@@ -505,7 +505,7 @@ Object.assign(T.ua,{streak:'Серія',
   howText:'Перевірка дивиться на три речі: які слова дитина читає (короткі чи довгі), як швидко впізнає слово зі спалаху і чи плутає мови. З цього складається шлях із 12 занять: 10 звичайних і 2 перевірки. Більше часу отримує мова, де дитині важче, і мова, якої немає в школі. У кожному занятті 2–4 завдання по 2–3 хвилини. Літери-двійники, на яких були помилки, трапляються в словах частіше. Після двох завдань поспіль майже без помилок рівень підвищується сам. Після перевірки на шостому занятті друга половина шляху складається заново. Заняття відкривається раз на день, щоб читання стало звичкою.',
   ok:['Правильно!','Молодець!','Точно!','Так!','Супер!']
 });
-Object.assign(T.en,{streak:'Streak',
+Object.assign(T.en,{streak:'in a row',
   wTitle:'Let’s get to know each other',wLead:'A few questions for the grown-up. From your answers and a short check, the game builds a plan of 12 sessions.',
   qName:'Child’s name',qAge:'Age',ages:['4–5','6–7','8–9','10+'],qLangs:'Languages they read or are learning to read',
   qSchool:'Language of school or nursery',qMin:'Minutes a day',mins:['5 minutes','10 minutes','15 minutes'],
@@ -822,8 +822,9 @@ function renderPic(k){
       $('opts').children[opts.indexOf(item)].classList.add('right');
       $('tip').textContent=`${t('no')} ${item.e} ${word}`;
       if(k.flash) G.ms[l]=Math.min(3000,Math.round(shown*(k.test?1.5:1.3))); }
-    const streakLine=ok&&[3,6,10,15].includes(G.streak+1);
-    const d=voice(ok?[[l,'w:'+item[l]],...(streakLine?[line(l,'streak')]:Math.random()<.5?[line(l,'ok1','ok2','ok3','ok4')]:[])]
+    // praise every other right answer, and always on 3, 6, 10, 15 in a row
+    const praise=ok&&([3,6,10,15].includes(G.streak+1)||Math.random()<.5);
+    const d=voice(ok?[[l,'w:'+item[l]],...(praise?[line(l,'ok1','ok2','ok3','ok4')]:[])]
                      :[line(l,'bad1','bad2'),[l,'w:'+item[l]]]);
     answered(ok,rec,l,Math.max(ok?1100:2000,d+250));
   };
@@ -863,7 +864,7 @@ function answered(ok,rec,l,wait){
     G.streak++; sfx.ok(G.streak);
     if(img){ img.src=heroSrc(l,true); img.className='joy'; }
     $('tip').className='tip ok'; $('tip').textContent=rnd(t('ok'))+($('tip').textContent?' '+$('tip').textContent:'');
-    if(G.streak>=3){ const s=$('streak'); s.hidden=false; s.textContent=`${t('streak')} ×${G.streak}`; s.classList.remove('pop'); void s.offsetWidth; s.classList.add('pop'); }
+    if(G.streak>=3){ const s=$('streak'); s.hidden=false; s.textContent=`🔥 ${G.streak} ${t('streak')}`; s.classList.remove('pop'); void s.offsetWidth; s.classList.add('pop'); }
   } else {
     G.streak=0; sfx.bad(); $('streak').hidden=true;
     if(img) img.className='sad';
