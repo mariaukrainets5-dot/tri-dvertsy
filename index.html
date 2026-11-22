@@ -810,9 +810,21 @@ function letterOpts(l,ch){
   return shuffle([ch,own,foreign]);
 }
 function learnTasks(l,letters){
-  const known=learned(l).filter(c=>!letters.includes(c)), out=letters.map(ch=>({t:'card',l,ch}));
-  const quiz=shuffle(letters.concat(letters,shuffle(known).slice(0,2)));
+  const weak=(P.weak&&P.weak[l]||[]).filter(c=>!letters.includes(c));
+  const known=learned(l).filter(c=>!letters.includes(c)&&!weak.includes(c)), out=letters.map(ch=>({t:'card',l,ch}));
+  const review=weak.slice(0,3).concat(shuffle(known)).slice(0,3);
+  const quiz=shuffle(letters.concat(letters,review));
   return out.concat(quiz.map(ch=>({t:'find',l,ch})));
+}
+// after a letters lesson: the pointer always moves past the letters shown; letters answered wrong go to review
+function learnDone(l,letters,log){
+  if(!l||!letters) return;
+  P.weak=P.weak||{}; const w=new Set(P.weak[l]||[]);
+  log.filter(r=>r.kind==='find'&&r.l===l).forEach(r=>{ if(r.ok) w.delete(r.ch); else w.add(r.ch); });
+  P.weak[l]=[...w];
+  const o=ORDER(l), end=Math.max(...letters.map(c=>o.indexOf(c)))+1;
+  if(end>(P.abc[l]||0)) P.abc[l]=Math.min(o.length,end);
+  save();
 }
 function soundTasks(l,n){
   const set=learned(l), pool=WORDS.filter(x=>/^\p{L}/u.test(x[l])&&!/[ -]/.test(x[l]));
@@ -1193,6 +1205,7 @@ function finishRun(){
   const l=G.ctx.l||null, best=l?G.best[l]:null;
   if(best){ const k='flash:'+P.id+':'+l, prev=store.get(k,null); if(!prev||best<prev) store.set(k,best); }
   logHist(G.ctx.type||(G.tasks[0]&&G.tasks[0].t==='which'?'which':(G.tasks[0].flash?'flash':'read')),l,acc,best);
+  if(G.ctx.type==='learn') learnDone(l,G.ctx.letters,G.log);
   if(G.ctx.kind==='mission') completeMission(G.ctx,acc,l);
   const stars=acc>=.9?3:acc>=.6?2:1;
   let text=fmt(t('rText'),{a:right,b:scored.length}); if(best) text+=fmt(t('rFlash'),{x:best});
@@ -1249,6 +1262,8 @@ function needOf(l){ const r=lastTest(); let n=5-P.levels[l]; if(l!==P.school)n+=
 function buildPlan(keepBefore){
   const old=P.plan, steps=[], k=[2,3,4][P.minutes], ls=P.langs, need={}, credit={};
   ls.forEach(l=>{need[l]=needOf(l);credit[l]=0});
+  const nextAbc={}; P.langs.forEach(l=>nextAbc[l]=P.abc[l]||0);
+  const takeLetters = l => { const o=ORDER(l), i=nextAbc[l]; nextAbc[l]+=3; return i<o.length?o.slice(i,i+3):shuffle(o).slice(0,3); };
   const tot=ls.reduce((s,l)=>s+need[l],0), conf=confusedLangs();
   for(let s=0;s<STEPS;s++){
     // the language that needs more help gets more sessions (smooth weighted round-robin)
@@ -1259,7 +1274,7 @@ function buildPlan(keepBefore){
     const readM = l => P.levels[l]===0?{type:'sound',l}:{type:'read',l,focus:focusFor(l)};
     const readers=ls.filter(l=>P.levels[l]>0);
     if(lp===0){ // learning letters: new letters, first sound, building words, letter table
-      const c0=[{type:'learn',l:p},P.abc[p]>=9?{type:'blend',l:p}:{type:'sound',l:p},{type:'sound',l:p},P.abc[p]>=6?{type:'build',l:p}:{type:'letters',l:p},{type:'letters',l:p}];
+      const c0=[{type:'learn',l:p,letters:takeLetters(p)},P.abc[p]>=9?{type:'blend',l:p}:{type:'sound',l:p},{type:'sound',l:p},P.abc[p]>=6?{type:'build',l:p}:{type:'letters',l:p},{type:'letters',l:p}];
       if(q) c0.push(readM(q));
       const m0=[]; c0.forEach(c=>{ if(m0.length<k&&!m0.some(m=>m.type===c.type&&m.l===c.l)) m0.push(c); });
       steps.push({missions:m0,done:m0.map(()=>false)}); continue;
@@ -1296,8 +1311,7 @@ function stepFinished(si){
 function completeMission(ctx,acc,l){
   if(ctx.step==null)return;
   P.plan.steps[ctx.step].done[ctx.mi]=true; stepFinished(ctx.step);
-  if(ctx.type==='learn'&&acc>=.5){
-    P.abc[l]=Math.min(ORDER(l).length,(P.abc[l]||0)+3);
+  if(ctx.type==='learn'){
     if(P.abc[l]>=ORDER(l).length&&P.levels[l]===0){ P.levels[l]=1; toast(fmt(t('levelUp'),{lang:LANG[l].name})); lvUp=l; buildPlan(ctx.step+1); }
   }
   if(l&&['read','flash','which'].includes(ctx.type)){ // two near-perfect tasks in a row raise the level, a hard one lowers it
@@ -1310,7 +1324,7 @@ function completeMission(ctx,acc,l){
 function launchMission(si,mi){
   const m=P.plan.steps[si].missions[mi], ctx={kind:m.type==='test'?'test':'mission',step:si,mi,type:m.type,l:m.l};
   if(m.type==='letters') return startSchulte(m.l,ctx);
-  if(m.type==='learn') return run(learnTasks(m.l,nextLetters(m.l)),ctx);
+  if(m.type==='learn'){ ctx.letters=m.letters||nextLetters(m.l); return run(learnTasks(m.l,ctx.letters),ctx); }
   if(m.type==='blend') return run(blendTasks(m.l),ctx);
   if(m.type==='sound') return run(soundTasks(m.l,8),ctx);
   if(m.type==='build') return run(buildTasks(m.l,5),ctx);
@@ -1333,7 +1347,7 @@ const MI = {blend:{en:'cat',ru:'МА',ua:'МА'},learn:{en:'Aa',ru:'Аа',ua:'А
 function missionHtml(m,done,isNext,disabled){
   const cls=m.l||'mix', icon=typeof MI[m.type]==='string'?MI[m.type]:MI[m.type][m.l];
   const g=m.l?LEVEL[P.levels[m.l]].grid:3, gs=g?`${g}×${g}`:(m.l?ABC[m.l].length:'');
-  let desc=fmt(t('md')[m.type],{n:m.type==='build'?5:8,g:gs,x:m.type==='learn'?nextLetters(m.l).join(' '):''});
+  let desc=fmt(t('md')[m.type],{n:m.type==='build'?5:8,g:gs,x:m.type==='learn'?(m.letters||nextLetters(m.l)).join(' '):''});
   if(m.l) desc=LANG[m.l].name+' · '+desc;
   if(m.focus&&m.focus.length) desc+=' · '+fmt(t('focus'),{x:m.focus.map(id=>TWINS.find(x=>x.id===id).show).join(', ')});
   return `<button class="mission ${done?'done':''} ${isNext?'next':''}" ${disabled?'disabled':''}>
@@ -1402,7 +1416,7 @@ function startFree(m,l){
   const ctx={kind:'free',l,type:['read','flash','which','letters','learn','sound','build','blend'][m]};
   ctx.replay=()=>startFree(m,l);
   if(m===3) return startSchulte(l,ctx);
-  if(m===4) return run(learnTasks(l,nextLetters(l)),ctx);
+  if(m===4){ ctx.letters=nextLetters(l); return run(learnTasks(l,ctx.letters),ctx); }
   if(m===5) return run(soundTasks(l,8),ctx);
   if(m===6) return run(buildTasks(l,5),ctx);
   if(m===7) return run(blendTasks(l),ctx);
@@ -1511,6 +1525,7 @@ function renderParent(){
 // first touch unlocks audio and starts decoding the heroes' voices
 addEventListener('pointerdown',()=>{ if(ac()) (P?P.langs:['en','ru','ua']).forEach(sprite); },{once:true});
 chrome();
+PROFILES.forEach(p=>{ const cur=P; P=p; if(p.plan&&p.plan.steps.some(st=>st.missions.some(m=>m.type==='learn'&&!m.letters))) buildPlan(curStep()); P=cur; });
 if(P) renderHome(); else renderWelcome();
 })();
 </script>
